@@ -1,0 +1,175 @@
+// 相关方法
+// 解决设置文字间隔 文字不居中
+letterSpacing()
+  letter-spacing arguments
+  text-indent arguments
+// 按钮颜色
+btnColor()
+  border thin solid arguments
+  color arguments
+  &:hover
+    color arguments == $whiteColor ? $blackColor : $whiteColor
+    background-color arguments
+  @media screen and (max-width 991px)
+    width 100%
+// 颜色
+$blueColor = #3759BA
+$lightBlueColor = #E6ECF2
+$darkBlueColor = #778DA7
+$whiteColor = #ffffff
+$darkGreyColor = #73797C
+$lightGreyColor = #919799
+$greyColor = #F2F4F3
+$blackColor = #000000
+$redColor = #F56C6C
+// 图标
+@font-face
+  font-family 'iconfont' /* project id 2113834 */
+  src url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.eot')
+  src url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.eot?#iefix') format('embedded-opentype'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.woff2') format('woff2'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.woff') format('woff'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.ttf') format('truetype'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.svg#iconfont') format('svg')
+.iconfont
+  font-family 'iconfont' !important
+  font-size 1rem
+  font-style normal
+  -webkit-font-smoothing antialiased
+  -webkit-text-stroke-width 0.2px
+  -moz-osx-font-smoothing grayscale
+/* 设置滚动条的样式 */
+::-webkit-scrollbar
+  width 4px
+  height 4px
+/* 滚动槽 */
+::-webkit-scrollbar-track
+  -webkit-box-shadow inset 0 0 6px rgba(2, 16, 72, 0.3)
+  border-radius 10px
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb
+  border-radius 10px
+  background #bbb
+  -webkit-box-shadow inset 0 0 6px rgba(2, 16, 72, 0.8)
+// 表单自动填充背景
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active
+  -webkit-box-shadow 0 0 0 30px $lightBlueColor inset
+html
+  font-size 0.625rem
+  overflow-x hidden !important
+body
+  padding 0
+  margin 0
+  font-family 'webfont' !important
+  font-size 1rem
+  font-style normal
+  overflow-x hidden !important
+  max-width 768px
+  margin 0 auto
+  -webkit-font-smoothing antialiased
+  -moz-osx-font-smoothing grayscale
+ul
+  list-style none
+  margin 0
+  padding 0
+a
+  text-decoration none
+  color $blackColor
+// margin padding
+.mt-1
+  margin-top 0.5rem
+.mt-2
+  margin-top 1.5rem
+.mt-3
+  margin-top 2.5rem
+.mb-1
+  margin-bottom 0.5rem
+.mb-2
+  margin-bottom 1.5rem
+.mb-3
+  margin-bottom 2.5rem
+// 按钮
+.btn
+  white-space nowrap
+  font-size 1.4rem
+  font-weight 500
+  text-align center
+  display inline-block
+  letterSpacing 1.2rem
+  border 0
+  border-radius 30px
+  cursor pointer
+  &:focus
+    outline 0
+.btn-lg
+  width 100%
+  padding 1.4rem 0
+.btn-md
+  width 10rem
+  padding 1rem 0
+.btn-sm
+  width 10rem
+  padding 1rem 0
+// 标题
+.title-lg
+  font-size 2.1rem
+  color $blueColor
+  font-weight 600
+  letterSpacing 0.4rem
+// 常规文字
+.text-lg
+  font-size 1.8rem
+  letter-spacing 0.4rem
+.text-md
+  font-size 1.4rem
+.text-sm
+  font-size 1rem
+// 页头页脚
+.editor>.el-header, .el-footer.read
+  height auto !important
+// 布局容器
+.el-header
+  padding-top 17px
+  height 50px
+.el-main
+  padding 0 20px 20px
+// 消息提示框
+.el-message
+  min-width 97%
+  top 10px !important
+// 输入框样式 --- Account-login,User-alter
+.login .el-input__inner, .alter .el-input__inner
+  background-color transparent
+  border 0
+  border-radius 0
+  border-bottom 2px solid $darkBlueColor
+  color $darkBlueColor
+  letterSpacing 0.2rem
+  padding-left 3.5rem !important
+  &:focus
+    color $blueColor
+    border-bottom-color $blueColor
+    +.el-input__prefix>.iconfont
+      color $blueColor
+.login .el-form-item.is-error .el-input__inner, .alter .el-form-item.is-error .el-input__inner
+  color $redColor
+  +.el-input__prefix>.iconfont
+    color $redColor
+// 输入框样式 --- Index-toolbar
+.index .tool-bar .el-input__inner
+  // background-color $greyColor
+  border-radius 30px
+  height 30px
+  line-height 30px
+.index .tool-bar .el-input__inner+.el-input__prefix>.el-input__icon
+  color $darkGreyColor
+  line-height 30px
+  height 30px
+// 输入框样式 --- Editor-toolBar
+.editor .tool-bar .el-input__inner
+  background-color transparent
+  border 0
+  border-radius 0
+  color $blackColor
+  letterSpacing 0.2rem
+  text-align center
+  font-size 1.8rem
+// card
+.el-card__body
+  padding 10px
