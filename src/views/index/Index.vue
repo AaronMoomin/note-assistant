@@ -36,5 +36,5 @@ export default {
 
 <style lang="stylus">
 .index
-  height 100vh
+  height 100%
 </style>

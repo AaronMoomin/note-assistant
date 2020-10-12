@@ -21,10 +21,10 @@
           v-model="alterForm.phone"
           readonly="true"
         >
-          <i
+          <icon-font
+            iconCode="icon-shouji1"
             slot="prefix"
-            class="iconfont"
-          >&#xe722;</i>
+          />
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
@@ -34,10 +34,10 @@
           placeholder="请输入旧密码"
           show-password
         >
-          <i
+          <icon-font
+            iconCode="icon-mima1"
             slot="prefix"
-            class="iconfont"
-          >&#xe67b;</i>
+          />
         </el-input>
       </el-form-item>
       <el-form-item prop="newPassword">
@@ -47,10 +47,10 @@
           placeholder="请输入新密码"
           show-password
         >
-          <i
+          <icon-font
+            iconCode="icon-mima1"
             slot="prefix"
-            class="iconfont"
-          >&#xe67b;</i>
+          />
         </el-input>
       </el-form-item>
       <el-form-item prop="checkPassword">
@@ -60,10 +60,10 @@
           placeholder="请再次输入密码"
           show-password
         >
-          <i
+          <icon-font
+            iconCode="icon-mima1"
             slot="prefix"
-            class="iconfont"
-          >&#xe67b;</i>
+          />
         </el-input>
       </el-form-item>
       <el-form-item class="alter-buttons">
@@ -131,7 +131,7 @@ export default {
   .el-form
     padding 3rem
     .el-input
-      i
+      svg
         color $darkBlueColor
         font-size 2.2rem
     .alter-buttons

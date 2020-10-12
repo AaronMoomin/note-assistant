@@ -38,5 +38,5 @@ export default {
 
 <style lang="stylus">
 .user
-  height 100vh
+  height 100%
 </style>

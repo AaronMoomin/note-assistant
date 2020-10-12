@@ -5,30 +5,31 @@
   >
     <!-- 左边图标 -->
     <router-link to="/index">
-      <i class="iconfont">&#xe611;</i>
+      <icon-font iconCode="icon-fanhui" />
     </router-link>
     <!-- 中间标题 -->
     <el-input
       :readonly="isRead"
-      class="title"
+      class="title title-md"
       v-model="title"
       autocomplete="off"
     >
     </el-input>
     <!-- 右边图标 -->
     <!-- 保存 -->
-    <i
-      class="iconfont"
+    <icon-font
+      iconCode="icon-baocun1"
       v-show="!isRead"
-      @click="save"
-    >&#xe60c;</i>
+      @click.native="save"
+    />
     <!-- 分享 -->
-    <i
-      class="share-btn iconfont"
+    <icon-font
+      iconCode="icon-fenxiang_2"
       v-show="isRead"
       :data-clipboard-text="shareMsg"
-      @click="share"
-    >&#xe600;</i>
+      class="share-btn"
+      @click.native="share"
+    />
   </el-container>
 </template>
 
@@ -86,7 +87,7 @@ export default {
   align-items center
   .title
     width auto
-  i
+  svg
     font-size 2rem
     color $darkBlueColor
     &:hover

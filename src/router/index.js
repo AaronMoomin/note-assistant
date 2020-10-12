@@ -6,6 +6,8 @@ import Index from '@/views/index/Index'
 import NoteEditor from '@/views/editor/NoteEditor'
 import User from '@/views/user/User'
 
+import Test from '@/views/test/Test'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -33,6 +35,11 @@ const routes = [
     path: '/user',
     name: 'User',
     component: User
+  },
+  {
+    path: '/test',
+    name: 'Test',
+    component: Test
   }
 ]
 

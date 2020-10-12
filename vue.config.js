@@ -23,5 +23,16 @@ module.exports = {
         }
       }
     })
+  },
+  // webpack-dev-server 相关配置
+  devServer: {
+    proxy: {
+      '/imageocr': {
+        target: `https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token='24.fa80bf8ce4ac7249f62e1fa4c928b5fe.2592000.1605023270.282335-22805053'`,
+        pathRewrite: { '^/imageocr': '' },
+        changeOrigin: true
+      }
+    },
+    disableHostCheck: true
   }
 }

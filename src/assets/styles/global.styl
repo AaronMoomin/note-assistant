@@ -22,18 +22,6 @@ $lightGreyColor = #919799
 $greyColor = #F2F4F3
 $blackColor = #000000
 $redColor = #F56C6C
-// 图标
-@font-face
-  font-family 'iconfont' /* project id 2113834 */
-  src url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.eot')
-  src url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.eot?#iefix') format('embedded-opentype'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.woff2') format('woff2'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.woff') format('woff'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.ttf') format('truetype'), url('//at.alicdn.com/t/font_2113834_9v771zo8d8g.svg#iconfont') format('svg')
-.iconfont
-  font-family 'iconfont' !important
-  font-size 1rem
-  font-style normal
-  -webkit-font-smoothing antialiased
-  -webkit-text-stroke-width 0.2px
-  -moz-osx-font-smoothing grayscale
 /* 设置滚动条的样式 */
 ::-webkit-scrollbar
   width 4px
@@ -53,7 +41,9 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 html
   font-size 0.625rem
   overflow-x hidden !important
+  height 100%
 body
+  height 100%
   padding 0
   margin 0
   font-family 'webfont' !important
@@ -81,7 +71,7 @@ a
 .mb-1
   margin-bottom 0.5rem
 .mb-2
-  margin-bottom 1.5rem
+  margin-bottom 1rem
 .mb-3
   margin-bottom 2.5rem
 // 按钮
@@ -112,6 +102,9 @@ a
   color $blueColor
   font-weight 600
   letterSpacing 0.4rem
+.title-md
+  font-size 2.1rem
+  letterSpacing 0.4rem
 // 常规文字
 .text-lg
   font-size 1.8rem
@@ -133,6 +126,18 @@ a
 .el-message
   min-width 97%
   top 10px !important
+// 抽屉
+.el-drawer, .el-drawer__container
+  outline none
+  border-radius 15px 15px 0 0
+.el-drawer__body
+  margin 0 20px
+.el-drawer__body .el-button--primary:focus, .el-drawer__body .el-button--primary:hover
+  background-color $blueColor
+  color $whiteColor
+// 加载
+.el-loading-text
+  padding-top 10px
 // 输入框样式 --- Account-login,User-alter
 .login .el-input__inner, .alter .el-input__inner
   background-color transparent
@@ -145,11 +150,11 @@ a
   &:focus
     color $blueColor
     border-bottom-color $blueColor
-    +.el-input__prefix>.iconfont
+    +.el-input__prefix>svg
       color $blueColor
 .login .el-form-item.is-error .el-input__inner, .alter .el-form-item.is-error .el-input__inner
   color $redColor
-  +.el-input__prefix>.iconfont
+  +.el-input__prefix>svg
     color $redColor
 // 输入框样式 --- Index-toolbar
 .index .tool-bar .el-input__inner

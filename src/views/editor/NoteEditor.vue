@@ -16,7 +16,7 @@
       <component
         :is="mode"
         @changMode="changMode"
-      ></component>
+      />
     </el-footer>
   </el-container>
 </template>
@@ -58,10 +58,17 @@ export default {
 
 <style lang="stylus">
 .editor
-  height 100vh
+  height 100%
   .el-header
-    line-height 40px
     margin-bottom 2px
+    padding-top 0
+    padding-top 5px
+    padding-bottom 5px
+  .el-main
+    .el-form-item__content
+      line-height 0px
+    .el-form-item
+      margin-bottom 10px
   .el-footer.read
     height 0
     position fixed

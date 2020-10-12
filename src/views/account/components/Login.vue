@@ -21,10 +21,11 @@
           v-model="loginForm.phone"
           autocomplete="off"
         >
-          <i
+          <icon-font
+            iconCode="icon-shouji1"
             slot="prefix"
-            class="iconfont"
-          >&#xe722;</i>
+            class="phone"
+          />
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
@@ -34,10 +35,11 @@
           show-password
           autocomplete="off"
         >
-          <i
+          <icon-font
+            iconCode="icon-mima1"
             slot="prefix"
-            class="iconfont"
-          >&#xe67b;</i>
+            class="password"
+          />
         </el-input>
       </el-form-item>
       <div class="forget-password">
@@ -137,12 +139,12 @@ export default {
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
 .login
-  height 100vh
+  height 100%
   text-align center
   .el-form
     padding 7rem 4rem
     .el-input
-      i
+      .phone, .password
         color $darkBlueColor
         font-size 2.2rem
     .btn-lg

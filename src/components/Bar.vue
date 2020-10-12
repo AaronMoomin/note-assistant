@@ -7,19 +7,28 @@
       to="/index"
       active-class="bar-active"
     >
-      <i class="iconfont home">&#xe680;</i>
+      <icon-font
+        iconCode="icon-zhuye"
+        class="home"
+      />
     </router-link>
     <router-link
       to="/editor"
       active-class="bar-active"
     >
-      <i class="iconfont add">&#xe601;</i>
+      <icon-font
+        iconCode="icon-add-fill"
+        class="add"
+      />
     </router-link>
     <router-link
       to="/user"
       active-class="bar-active"
     >
-      <i class="iconfont user">&#xe642;</i>
+      <icon-font
+        iconCode="icon-geren"
+        class="user"
+      />
     </router-link>
   </el-container>
 </template>
@@ -46,8 +55,8 @@ export default {
   background-color $whiteColor
   padding 0.5rem 0
   border-radius 30px
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
-  .bar-active>i
+  box-shadow 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+  .bar-active>svg
     color $blueColor
   .home, .user
     font-size 2rem

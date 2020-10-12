@@ -3,7 +3,10 @@
     class="read-bar"
     direction="horizontal"
   >
-    <i class="iconfont read" @click="changMode">&#xe64b;</i>
+    <icon-font
+      iconCode="icon-xiugai1"
+      @click.native="changMode"
+    />
   </el-container>
 </template>
 
@@ -15,8 +18,8 @@ export default {
     }
   },
   methods: {
-    changMode(){
-      this.$emit("changMode","editor")
+    changMode () {
+      this.$emit("changMode", "editor")
     }
   }
 }
@@ -24,7 +27,8 @@ export default {
 
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
-.read
+.read-bar svg
   font-size 6rem
   color $blueColor
+  margin-bottom 4px
 </style>

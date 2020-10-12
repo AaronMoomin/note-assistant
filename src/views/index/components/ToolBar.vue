@@ -21,13 +21,13 @@
         size="mini"
         circle
       >
-        <i class="iconfont">&#xe632;</i>
+        <icon-font iconCode="icon-shoucang1" />
       </el-button>
       <el-button
         size="mini"
         circle
       >
-        <i class="iconfont">&#xe603;</i>
+        <icon-font iconCode="icon-paixu3" />
       </el-button>
     </div>
   </el-container>
