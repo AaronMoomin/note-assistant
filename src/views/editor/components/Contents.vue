@@ -5,8 +5,11 @@
       :model="contentForm"
     >
       <el-form-item
+        class="slide"
         v-for="(item) in contentForm.data"
         :key="item.key"
+        v-slide:swipeleft="removeItem"
+        v-slide:swiperight="rightSlide"
       >
         <el-input
           v-if="item.type === 'text' || item.type === 'ocrText'"
@@ -49,6 +52,74 @@ export default {
   props: {
     isRead: Boolean
   },
+  directives: {
+    //滑动指令
+    slide: {
+      bind: function (el, binding, vnode) {
+        let startX, startY, endX, endY
+        let dx, dy
+        let x, y = 0
+        let touchType = binding.arg
+        let direction = null
+        let key = vnode.data.key
+
+        // 判断滑动方向
+        function getSlideDirection (startX, startY, endX, endY) {
+
+          dy = Math.abs(startY - endY)
+          dx = Math.abs(endX - startX)
+          let result = null
+
+          // 滑动水平距离过短/高度过长 失效
+          if (dx < 50 || dy > 100) {
+            x = 0
+            vnode.elm.style.transform = `translateX(${x}px)`
+            return result
+          }
+
+          // 判断水平向左还是向右
+          if (dx > dy) return (endX > startX) ? result = 'swiperight' : result = 'swipeleft'
+          return result
+        }
+
+        // 被激活的触摸点
+        el.addEventListener('touchstart', function (e) {
+          startX = e.touches[0].pageX
+          startY = e.touches[0].pageY
+        }, false)
+
+        el.addEventListener('touchmove', function (e) {
+          x = e.touches[0].pageX - startX
+          y = e.touches[0].pageY - startY
+          console.log(`x:${Math.abs(x)} y:${Math.abs(y)}`)
+          // 触摸点起始点与当前点的距离
+          if (Math.abs(x) > 5) return vnode.elm.style.transform = `translateX(${x}px)`
+        })
+
+        // 消失的触摸点
+        el.addEventListener('touchend', function (e) {
+          endX = e.changedTouches[0].pageX
+          endY = e.changedTouches[0].pageY
+          direction = getSlideDirection(startX, startY, endX, endY)
+
+          switch (direction) {
+            case 'swipeleft': {
+              if (touchType === 'swipeleft') {
+                binding.value(el, dx, key)
+              }
+              break
+            }
+            case 'swiperight': {
+              if (touchType === 'swiperight') {
+                binding.value(el, dx, key)
+              }
+              break
+            }
+          }
+        }, false)
+      }
+    },
+  },
   data () {
     return {
       imgTest: 'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1591797306,3433247737&fm=26&gp=0.jpg',
@@ -57,11 +128,13 @@ export default {
           [
             {
               type: 'text',
-              value: ''
+              value: '',
+              key: '01'
             },
             {
               type: 'image',
-              value: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg'
+              value: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
+              key: '02'
             }
           ]
       }
@@ -136,6 +209,23 @@ export default {
       let orcResult = resData.data.words_result.map(e => e.words).join('\n')
       this.contentForm.data[position].value = orcResult
       loading.close()
+    },
+    async removeItem (el, dx, key) {
+      let elClientWidth = Math.abs(el.clientWidth)
+      if (dx > elClientWidth * 0.3) {
+        let index
+        let data = this.contentForm.data
+        el.style.transform = `translateX(${-(elClientWidth + 10)}px)`
+        index = data.findIndex(e => e.key === key)
+        setTimeout(function () {
+          data.splice(index, 1)
+        }, 200)
+      } else {
+        el.style.transform = `translateX(0)`
+      }
+    },
+    async rightSlide (el) {
+      el.style.transform = `translateX(0)`
     }
   },
   mounted () {
@@ -157,9 +247,13 @@ export default {
   border-radius 4px
   height 100%
   padding 10px
-  overflow auto
+  overflow-x hidden
+  overflow-y auto
   .el-form
     width 100%
+  .slide
+    transform translateZ(0)
+    transition transform 0.2s ease-in 0ms
     .el-image
       width 100%
       .image-slot

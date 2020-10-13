@@ -9,89 +9,79 @@
       class="image"
       @click.native="image"
     />
-    <icon-font
-      iconCode="icon-yuyin1"
-      class="recording"
-    />
+    <image-drawer ref="imageDrawer" />
+    <el-popover
+      placement="bottom"
+      width="200"
+      trigger="manual"
+      content="正在录音中..."
+      v-model="visible"
+    >
+      <icon-font
+        iconCode="icon-yuyin1"
+        class="recording"
+        v-longpress="recording"
+        slot="reference"
+      />
+    </el-popover>
     <icon-font
       iconCode="icon-bianjiqianbixieshuru2"
       class="text"
       @click.native="text"
     />
-    <el-drawer
-      direction='btt'
-      :show-close="false"
-      :with-header="false"
-      :visible.sync="drawer"
-      size='165px'
-    >
-      <div class="title">
-        选择一种方式...
-      </div>
-      <div class="content">
-        <div class="camera mb-2">
-          <div class="left">
-            <icon-font iconCode="icon-xiangji1" />
-            <span class="text-lg">相机</span>
-          </div>
-          <el-upload
-            ref="cameraUpload"
-            class="camera-upload"
-            :action="actionPath"
-            :data="param"
-            :multiple="false"
-            :limit="1"
-            :show-file-list="false"
-            :before-upload="beforeImageUpload"
-            :on-progress="handleImageProgress"
-            :on-success="handleImageSuccess"
-          >
-            <el-button
-              type="primary"
-              size="medium"
-              round
-            >拍照</el-button>
-          </el-upload>
-        </div>
-        <div class="album">
-          <div class="left">
-            <icon-font iconCode="icon-zhaopian" />
-            <span class="text-lg">相册</span>
-          </div>
-          <el-upload
-            ref="albumUpload"
-            class="album-upload"
-            :action="actionPath"
-            :data="param"
-            :multiple="false"
-            :limit="1"
-            :show-file-list="false"
-            :before-upload="beforeImageUpload"
-            :on-progress="handleImageProgress"
-            :on-success="handleImageSuccess"
-          >
-            <el-button
-              size="medium"
-              round
-            >打开</el-button>
-          </el-upload>
-        </div>
-      </div>
-    </el-drawer>
   </el-container>
 </template>
 
 <script>
+import ImageDrawer from './ImageDrawer'
+
 export default {
   name: 'Editor',
+  components: {
+    ImageDrawer
+  },
+  directives: {
+    // 长按指令
+    longpress: {
+      bind: function (el, binding, vnode) {
+        let pressTimer = null
+
+        // 创建计时器
+        let start = (e) => {
+          if (e.type === 'click' && e.button !== 0) return false
+          if (pressTimer === null) {
+            pressTimer = setTimeout((e) => {
+              binding.value(e)
+            }, 200)
+          }
+        }
+
+        // 取消计时器
+        let cancel = () => {
+          // 检查是否有正在运行的计时器
+          if (pressTimer !== null) {
+            vnode.context.visible = false
+            clearTimeout(pressTimer)
+            pressTimer = null
+          }
+        }
+
+        // 添加事件监听器
+        el.addEventListener("mousedown", start);
+        el.addEventListener("touchstart", start);
+
+        // 取消计时器
+        el.addEventListener("click", cancel);
+        el.addEventListener("mouseout", cancel);
+        el.addEventListener("touchend", cancel);
+        el.addEventListener("touchcancel", cancel);
+      }
+
+    }
+  },
   data () {
     return {
-      domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
-      param: {
-        token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:feROH3U2hwPlheQg3n3afBEqwW8=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAyNDk4MzY0fQ=='
-      },
-      drawer: false,
-      actionPath: 'https://upload-z2.qiniup.com'
+      visible: false
     }
   },
   methods: {
@@ -100,7 +90,8 @@ export default {
     },
     // 图像
     image () {
-      this.drawer = true
+      console.log(this.$refs.ImageDrawer)
+      this.$refs.imageDrawer.changeDrawerState()
       this.$nextTick(() => {
         let cameraUpload = document.querySelector('.camera-upload>.el-upload>input')
         cameraUpload.setAttribute('capture', 'capture')
@@ -109,28 +100,12 @@ export default {
         albumUpload.setAttribute('accept', 'image/*')
       })
     },
-    // 图片上传前操作---待定
-    beforeImageUpload () {
-    },
-    // 图片上传中的钩子
-    handleImageProgress () {
-      this.drawer = false
-    },
-    // 图片上传成功钩子
-    handleImageSuccess (res) {
-      let imgWidth = document.querySelector('.content>.el-form').clientWidth
-      let imgUrl = this.domain + res.key + `?imageMogr2/auto-orient/thumbnail/${imgWidth}x/format/jpg/blur/1x0/quality/75`
-      this.$bus.$emit('addImg', imgUrl)
-      this.$message({
-        message: '图片上传成功',
-        type: 'success'
-      })
-      this.$refs.cameraUpload.clearFiles()
-      this.$refs.albumUpload.clearFiles()
-    },
+    // 录音
     recording () {
-
+      this.visible = true
+      if (navigator.vibrate) return navigator.vibrate(100)
     },
+    // 文本
     text () {
       this.$bus.$emit('addText')
     }
@@ -141,6 +116,10 @@ export default {
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
 .editor-bar
+  -webkit-user-select none
+  -moz-user-select none
+  -ms-user-select none
+  user-select none
   justify-content space-around
   align-items center
   background-color $whiteColor
@@ -151,24 +130,4 @@ export default {
     color $darkBlueColor
     &:hover
       color $blueColor
-  .el-drawer
-    .title
-      text-align center
-      font-size 18px
-      padding 15px 0
-      border-bottom 1px solid $lightBlueColor
-    .content
-      padding 12px 0
-      .left>span
-        padding-left 8px
-        vertical-align super
-      .album>.el-button
-        border-color $blueColor
-        color $blackColor
-      svg
-        font-size 3.8rem
-      >div
-        display flex
-        justify-content space-between
-        align-items center
 </style>

@@ -22,19 +22,23 @@ $lightGreyColor = #919799
 $greyColor = #F2F4F3
 $blackColor = #000000
 $redColor = #F56C6C
+// chrome
+// 默认蓝底
+*
+  -webkit-tap-highlight-color transparent
 /* 设置滚动条的样式 */
 ::-webkit-scrollbar
   width 4px
   height 4px
 /* 滚动槽 */
 ::-webkit-scrollbar-track
-  -webkit-box-shadow inset 0 0 6px rgba(2, 16, 72, 0.3)
+  -webkit-box-shadow inset 0 0 6px rgba(230, 236, 242, 0.3)
   border-radius 10px
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb
   border-radius 10px
   background #bbb
-  -webkit-box-shadow inset 0 0 6px rgba(2, 16, 72, 0.8)
+  -webkit-box-shadow inset 0 0 6px rgba(230, 236, 242, 0.5)
 // 表单自动填充背景
 input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active
   -webkit-box-shadow 0 0 0 30px $lightBlueColor inset
@@ -61,6 +65,9 @@ ul
 a
   text-decoration none
   color $blackColor
+// 取消点击出现黄色框
+svg:focus
+  outline none
 // margin padding
 .mt-1
   margin-top 0.5rem
@@ -132,9 +139,6 @@ a
   border-radius 15px 15px 0 0
 .el-drawer__body
   margin 0 20px
-.el-drawer__body .el-button--primary:focus, .el-drawer__body .el-button--primary:hover
-  background-color $blueColor
-  color $whiteColor
 // 加载
 .el-loading-text
   padding-top 10px
