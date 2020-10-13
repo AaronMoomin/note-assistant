@@ -5,6 +5,11 @@ import './assets/styles/theme/index.css'
 import IconFont from './components/Iconfont'
 import App from './App.vue'
 import router from './router'
+import md5 from 'js-md5'
+import CryptoJS from 'crypto-js'
+
+Vue.prototype.$md5 = md5
+Vue.prototype.$cryptoJS = CryptoJS
 
 let message = options => {
   Message({
