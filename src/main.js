@@ -8,6 +8,12 @@ import router from './router'
 import md5 from 'js-md5'
 import CryptoJS from 'crypto-js'
 
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  config.headers.common['Authorization'] = 'Bearer ' + token
+  return config
+})
+
 Vue.prototype.$md5 = md5
 Vue.prototype.$cryptoJS = CryptoJS
 

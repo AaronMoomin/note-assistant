@@ -11,17 +11,9 @@
         v-slide:swipeleft="removeItem"
         v-slide:swiperight="rightSlide"
       >
-        <el-input
-          v-if="item.type === 'text' || item.type === 'ocrText'"
-          :readonly="isRead"
-          type="textarea"
-          :rows="2"
-          autosize
-          :placeholder="item.type === 'ocrText' ? '正在识别中...':'请输入内容'"
-          v-model="item.value"
-        ></el-input>
+        <!-- 文本 -->
         <div
-          v-else-if="item.type ==='image'"
+          v-if="item.type ==='image'"
           class="image"
           @dblclick.once="imageOcr($event,item.key)"
         >
@@ -40,6 +32,30 @@
             </div>
           </el-image>
         </div>
+        <!-- 音频 -->
+        <div
+          v-else-if="item.type === 'audio'"
+          @click="broadcast($event,item.duration)"
+          class="audio"
+        >
+          <div class="icon-broadcast">
+            <span class="first"></span>
+            <span class="second"></span>
+            <span class="third"></span>
+          </div>
+          <div class="audio-duration">{{item.duration}}''</div>
+          <audio :src="item.value" />
+        </div>
+        <!-- 图像 -->
+        <el-input
+          v-else-if="item.type === 'text' || item.type === 'ocrText'"
+          :readonly="isRead"
+          type="textarea"
+          :rows="2"
+          autosize
+          :placeholder="item.type === 'text' ? '请输入内容':'正在识别中...'"
+          v-model="item.value"
+        />
       </el-form-item>
     </el-form>
   </el-container>
@@ -122,6 +138,7 @@ export default {
   },
   data () {
     return {
+      audioKey: 0,
       imgTest: 'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1591797306,3433247737&fm=26&gp=0.jpg',
       contentForm: {
         data:
@@ -135,6 +152,12 @@ export default {
               type: 'image',
               value: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
               key: '02'
+            },
+            {
+              type: 'audio',
+              value: 'test',
+              duration: 3,
+              key: '03'
             }
           ]
       }
@@ -145,8 +168,30 @@ export default {
       let element = document.querySelector('.content>.el-form>.el-form-item:last-child')
       element.scrollIntoView()
     },
+    async addImg (data) {
+      await this.contentForm.data.push({
+        type: 'image',
+        value: data,
+        key: Date.now()
+      })
+      this.scrollIntoView()
+    },
+    async addAudio (data, duration) {
+      let template = {
+        type: 'audio',
+        // eslint-disable-next-line
+        value: (window.URL || webkitURL).createObjectURL(data),
+        duration: parseInt(duration / 1000),
+        key: Date.now()
+      }
+      await this.contentForm.data.push(template)
+      let returnData = await this.addText('ocrText')
+      this.audioKey = returnData.key
+      this.scrollIntoView()
+      return returnData
+    },
     async addText (type = 'text', key = null) {
-      let position
+      let returnPosition = 0
       let data = this.contentForm.data
       let template = {
         type: type,
@@ -156,20 +201,16 @@ export default {
       if (key) {
         let index = this.contentForm.data.findIndex(e => e.key === key) + 1
         await data.splice(index, 0, template)
-        position = index + 1
+        returnPosition = index + 1
       } else {
-        position = await data.push(template)
+        let position = await data.push(template)
+        returnPosition = position - 1
       }
       this.scrollIntoView()
-      return position - 1
-    },
-    async addImg (data) {
-      await this.contentForm.data.push({
-        type: 'image',
-        value: data,
-        key: Date.now()
-      })
-      this.scrollIntoView()
+      return {
+        position: returnPosition,
+        key: template.key
+      }
     },
     // 图像url转base64(去头部)
     imageToBase64 (url) {
@@ -199,7 +240,7 @@ export default {
         text: '图像识别中',
         background: 'rgba(0, 0, 0, 0.8)'
       })
-      let position = await this.addText('ocrText', key)
+      let returnData = await this.addText('ocrText', key)
       let imgUrl = event.currentTarget.querySelector('.el-image>img').src
       let sendData = await this.imageToBase64(imgUrl)
       let config = {
@@ -207,8 +248,15 @@ export default {
       }
       let resData = await this.axios.post('/imageocr', sendData, config)
       let orcResult = resData.data.words_result.map(e => e.words).join('\n')
-      this.contentForm.data[position].value = orcResult
+      this.contentForm.data[returnData.position].value = orcResult
       loading.close()
+    },
+    // 语音识别
+    async recordingOcr (value = '') {
+      let key = this.audioKey
+      let index = await this.contentForm.data.findIndex(e => e.key === key)
+      this.contentForm.data[index].value = value
+      this.audioKey = 0
     },
     async removeItem (el, dx, key) {
       let elClientWidth = Math.abs(el.clientWidth)
@@ -226,16 +274,33 @@ export default {
     },
     async rightSlide (el) {
       el.style.transform = `translateX(0)`
+    },
+    // 播放语音
+    async broadcast (e, duration) {
+      let eDom = e.currentTarget
+      let toggleActive = () => {
+        eDom.classList.toggle("active")
+      }
+      eDom.querySelector('audio').play()
+      toggleActive()
+      setTimeout(toggleActive, (duration * 1000))
     }
   },
   mounted () {
     // 监听事件
-    this.$bus.$on("addText", () => {
-      this.addText()
-    })
     this.$bus.$on("addImg", data => {
       this.addImg(data)
     })
+    this.$bus.$on("addAudio", (data, duration) => {
+      this.addAudio(data, duration)
+    })
+    this.$bus.$on("recordingOcr", (data) => {
+      this.recordingOcr(data)
+    })
+    this.$bus.$on("addText", () => {
+      this.addText()
+    })
+
   }
 }
 </script>
@@ -266,4 +331,54 @@ export default {
         background-color $greyColor
         i
           font-size 2rem
+    .audio
+      height 45px
+      line-height 45px
+      width 150px
+      border-radius 4px
+      box-shadow 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+      display flex
+      justify-content space-around
+      align-items center
+      .icon-broadcast
+        width 30px
+        height 30px
+        position relative
+        overflow hidden
+        transform rotate(135deg)
+        >span
+          border 2px solid $darkBlueColor
+          border-radius 50%
+          position absolute
+        .first
+          width 3px
+          height 3px
+          background #cccccc
+          top 27px
+          left 27px
+        .second
+          width 15px
+          height 15px
+          top 21px
+          left 21px
+        .third
+          width 24px
+          height 24px
+          top 15px
+          left 15px
+        @keyframes fadeInOut
+          0%
+            opacity 0
+            /* 初始状态 透明度为0 */
+          100%
+            opacity 1
+            /* 结尾状态 透明度为1 */
+      .audio-duration
+        font-size 12px
+.active>.icon-broadcast>.first
+  animation fadeInOut 1s infinite 2.4s
+.active>.icon-broadcast>.second
+  animation fadeInOut 1s infinite 1.6s
+.active>.icon-broadcast>.third
+  animation fadeInOut 1s infinite 0.8s
 </style>

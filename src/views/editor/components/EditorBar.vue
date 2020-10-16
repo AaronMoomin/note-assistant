@@ -3,27 +3,20 @@
     class="editor-bar"
     direction="horizontal"
   >
-
     <icon-font
       iconCode="icon-tupian"
       class="image"
       @click.native="image"
     />
     <image-drawer ref="imageDrawer" />
-    <el-popover
-      placement="bottom"
-      width="200"
-      trigger="manual"
-      content="正在录音中..."
-      v-model="visible"
-    >
+    <recording-popover ref="rcordingPopover">
       <icon-font
+        slot="down"
         iconCode="icon-yuyin1"
         class="recording"
         v-longpress="recording"
-        slot="reference"
       />
-    </el-popover>
+    </recording-popover>
     <icon-font
       iconCode="icon-bianjiqianbixieshuru2"
       class="text"
@@ -34,11 +27,13 @@
 
 <script>
 import ImageDrawer from './ImageDrawer'
+import RecordingPopover from './RecordingPopover'
 
 export default {
   name: 'Editor',
   components: {
-    ImageDrawer
+    ImageDrawer,
+    RecordingPopover,
   },
   directives: {
     // 长按指令
@@ -60,28 +55,30 @@ export default {
         let cancel = () => {
           // 检查是否有正在运行的计时器
           if (pressTimer !== null) {
-            vnode.context.visible = false
+            if (vnode.context.recPermission) {
+              vnode.context.recStop()
+            }
+            vnode.context.$refs.rcordingPopover.changePopoverState(false)
             clearTimeout(pressTimer)
             pressTimer = null
           }
         }
 
         // 添加事件监听器
-        el.addEventListener("mousedown", start);
-        el.addEventListener("touchstart", start);
+        el.addEventListener("mousedown", start)
+        el.addEventListener("touchstart", start)
 
         // 取消计时器
-        el.addEventListener("click", cancel);
-        el.addEventListener("mouseout", cancel);
-        el.addEventListener("touchend", cancel);
-        el.addEventListener("touchcancel", cancel);
+        el.addEventListener("click", cancel)
+        el.addEventListener("mouseout", cancel)
+        el.addEventListener("touchend", cancel)
+        el.addEventListener("touchcancel", cancel)
       }
 
     }
   },
   data () {
     return {
-      visible: false
     }
   },
   methods: {
@@ -90,7 +87,6 @@ export default {
     },
     // 图像
     image () {
-      console.log(this.$refs.ImageDrawer)
       this.$refs.imageDrawer.changeDrawerState()
       this.$nextTick(() => {
         let cameraUpload = document.querySelector('.camera-upload>.el-upload>input')
@@ -102,8 +98,21 @@ export default {
     },
     // 录音
     recording () {
-      this.visible = true
-      if (navigator.vibrate) return navigator.vibrate(100)
+      if (navigator.vibrate) {
+        navigator.vibrate(100)
+      }
+      // 获取录音权限
+      // this.$refs.rcordingPopover.recordingInit()
+      this.$refs.rcordingPopover.changePopoverState(true)
+      // 检查录音权限
+      // if (!this.recPermission) {
+      //   this.$message({
+      //     message: "请授权录音权限",
+      //     type: 'warning'
+      //   })
+      //   return
+      // }
+
     },
     // 文本
     text () {

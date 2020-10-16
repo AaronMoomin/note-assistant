@@ -71,7 +71,7 @@ export default {
       domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
       actionPath: 'https://upload-z2.qiniup.com',
       param: {
-        token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:fA5UmMwdbLRXqaUve1JPoRTk6AQ=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAyNTgwNTkzfQ=='
+        token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:2osPHWcK_Cl6SW6uvM2eF9vpFM4=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAyODUzNTIwfQ=='
       }
     }
   },

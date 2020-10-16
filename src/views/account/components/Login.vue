@@ -50,12 +50,11 @@
         >忘记密码?</el-link>
       </div>
       <el-form-item>
-        <router-link to="/index">
-          <el-button
-            class="btn btn-lg"
-            type="primary"
-          >登录</el-button>
-        </router-link>
+        <el-button
+          class="btn btn-lg"
+          type="primary"
+          @click="submitForm('loginForm')"
+        >登录</el-button>
       </el-form-item>
       <div class="register">
         <div class="text-sm mt-2">没有账号?快加入我们吧!</div>
@@ -72,11 +71,17 @@
 </template>
 
 <script>
+import JSEncrypt from 'jsencrypt'
 import avatar from '@/assets/images/account/avatar.png'
+
 export default {
   name: 'Login',
   data () {
     return {
+      pubkey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4AHCyzGYb5P37Otg7pCUFMqpI
+            ef5puEcXatDrUuk9bp91In1Q7RA57+QJbnS2aqf6SPwNy8MmId6xwp28ny4mIbTw
+            z2h3hW5wsoQMA4vVoiX8fXBUg5gt6hYM6oZHapSw1rIRkLiKI5yK6csUiIQ9k5s8
+            XTAxVjLWINSZ74+yuQIDAQAB`,
       loginForm: {
         phone: '',
         password: ''
@@ -87,8 +92,8 @@ export default {
           { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'change' }
         ],
         password: [
-          { required: true, message: '请输入您的密码', trigger: 'change' },
-          { min: 5, max: 32, message: '请输入正确的密码', trigger: 'change' }
+          { required: true, message: '请输入您的密码', trigger: 'blur' },
+          { min: 5, max: 32, message: '请输入正确的密码', trigger: 'blur' }
         ]
       },
       avatar: avatar
@@ -98,40 +103,48 @@ export default {
     errorHandler () {
       return true
     },
-    async sendData (data) {
-      this.axios
-        .post('/lfc/login/sysadminlogin', data)
-        .then(res => {
-          if (res.data.status === 1) {
-            localStorage.setItem('userId', res.data.data.userId)
-            this.$router.push({
-              path: ''
-            })
-            this.$message({
-              showClose: true,
-              message: res.data.info,
-              type: 'success'
-            })
-          } else {
-            this.$message.error({
-              message: res.data.info,
-              showClose: true
-            })
-            this.loginForm.password = ''
-          }
-        })
-    },
+    // 提交按钮
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.sendData(this.qs.stringify(this[formName]))
+          this.encrypt(formName)
+          this.sendData(this[formName])
         } else {
           return false
         }
       })
-    }
+    },
+    // 账号密码加密
+    encrypt (formName) {
+      let encrypt = new JSEncrypt()
+      encrypt.setPublicKey(this.pubkey)
+      this[formName].password = encrypt.encrypt(this[formName].password)
+    },
+    // 发送数据
+    async sendData (data) {
+      let resData = await this.axios.post('/v1/login', data)
+      console.log(resData.data.status)
+      console.log(resData.data)
+      if (resData.data.status) {
+        localStorage.setItem('token', resData.data.data.token)
+        this.$router.push({
+          path: '/index'
+        })
+        this.$message({
+          message: resData.data.msg,
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: resData.data.msg,
+          type: 'error'
+        })
+        this.loginForm.password = ''
+      }
+    },
   },
   created () {
+    localStorage.removeItem('token')
   }
 }
 </script>

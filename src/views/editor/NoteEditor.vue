@@ -75,4 +75,7 @@ export default {
     bottom 0
     right 0
     padding-bottom 16px
+.el-popover.recording-popover
+  border-radius 30px
+  transition top .2s ease-in-out 0ms
 </style>
