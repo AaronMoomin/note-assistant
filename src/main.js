@@ -24,7 +24,6 @@ let message = options => {
     showClose: true
   })
 }
-
 Vue.use(Element)
 
 Vue.config.productionTip = false

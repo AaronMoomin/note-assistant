@@ -5,7 +5,9 @@
   >
     <el-header>
       <tool-bar
+        :title="`笔记标题`"
         :isRead="modeState"
+        :isFavorite="true"
         @changMode="changMode"
       />
     </el-header>
@@ -77,5 +79,5 @@ export default {
     padding-bottom 16px
 .el-popover.recording-popover
   border-radius 30px
-  transition top .2s ease-in-out 0ms
+  transition top 0.2s ease-in-out 0ms
 </style>

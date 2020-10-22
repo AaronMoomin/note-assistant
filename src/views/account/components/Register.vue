@@ -1,13 +1,12 @@
 <template>
   <el-container
-    class="login"
+    class="register"
     direction="vertical"
   >
     <el-form
-      :model="loginForm"
-      ref="loginForm"
+      :model="registerForm"
+      ref="registerForm"
       :rules="rules"
-      label-position="top"
     >
       <div class="avatar mb-3">
         <el-avatar
@@ -19,64 +18,90 @@
       </div>
       <el-form-item prop="phone">
         <el-input
-          v-model="loginForm.phone"
+          v-model="registerForm.phone"
           autocomplete="off"
+          placeholder="请输入手机号"
+          clearable
         >
-          <i
+          <icon-font
+            iconCode="icon-shouji1"
             slot="prefix"
-            class="iconfont"
-          >&#xe722;</i>
+            class="phone"
+          />
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
         <el-input
-          v-model="loginForm.password"
-          @keyup.enter.native="submitForm('loginForm')"
+          v-model="registerForm.password"
+          @keyup.enter.native="submitForm('register')"
           show-password
+          placeholder="请输入密码"
           autocomplete="off"
         >
-          <i
+          <icon-font
+            iconCode="icon-mima1"
             slot="prefix"
-            class="iconfont"
-          >&#xe67b;</i>
+            class="password"
+          />
         </el-input>
       </el-form-item>
-      <div class="forget-password">
-        <el-link
-          type="info"
-          :underline="false"
-          class="text-sm mb-1"
-        >忘记密码?</el-link>
-      </div>
+      <el-form-item prop="checkPassword">
+        <el-input
+          v-model="checkPassword"
+          auto-complete="new-password"
+          placeholder="请再次输入密码"
+          show-password
+        >
+          <icon-font
+            iconCode="icon-mima1"
+            slot="prefix"
+            class="checkPassword"
+          />
+        </el-input>
+      </el-form-item>
       <el-form-item>
-        <router-link to="/index">
-          <el-button
-            class="btn btn-lg"
-            type="primary"
-          >登录</el-button>
-        </router-link>
+        <el-button
+          class="btn btn-lg"
+          type="primary"
+          @click="submitForm('registerForm')"
+        >注册</el-button>
       </el-form-item>
       <div class="register">
-        <div class="text-sm mt-2">没有账号?快加入我们吧!</div>
+        <div class="text-sm mt-2">已有账号?开始登录吧!</div>
         <el-link
           type="primary"
           :underline="false"
           class="text-md mt-1"
-        >注 册</el-link>
+          @click="changMode"
+        >登 录</el-link>
       </div>
     </el-form>
   </el-container>
 </template>
 
 <script>
+import JSEncrypt from 'jsencrypt'
 import avatar from '@/assets/images/account/avatar.png'
+
 export default {
   name: 'Register',
   data () {
+    let validatePass = (rule, value, callback) => {
+      if (this.checkPassword !== this.registerForm.password || this.checkPassword === '') {
+        callback(new Error('两次输入密码不一致!'))
+      } else if (this.checkPassword === this.registerForm.password) {
+        callback()
+      }
+    }
     return {
-      loginForm: {
+      pubkey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4AHCyzGYb5P37Otg7pCUFMqpI
+            ef5puEcXatDrUuk9bp91In1Q7RA57+QJbnS2aqf6SPwNy8MmId6xwp28ny4mIbTw
+            z2h3hW5wsoQMA4vVoiX8fXBUg5gt6hYM6oZHapSw1rIRkLiKI5yK6csUiIQ9k5s8
+            XTAxVjLWINSZ74+yuQIDAQAB`,
+      checkPassword: '',
+      registerForm: {
         phone: '',
-        password: ''
+        password: '',
       },
       rules: {
         phone: [
@@ -86,62 +111,74 @@ export default {
         password: [
           { required: true, message: '请输入您的密码', trigger: 'change' },
           { min: 5, max: 32, message: '请输入正确的密码', trigger: 'change' }
+        ],
+        checkPassword: [
+          { required: true, validator: validatePass, trigger: 'change' },
         ]
       },
       avatar: avatar
     }
   },
   methods: {
+    changMode () {
+      this.$emit("changMode", "login")
+    },
     errorHandler () {
       return true
     },
-    async sendData (data) {
-      this.axios
-        .post('/lfc/login/sysadminlogin', data)
-        .then(res => {
-          if (res.data.status === 1) {
-            localStorage.setItem('userId', res.data.data.userId)
-            this.$router.push({
-              path: '/manage/counselorApply'
-            })
-            this.$message({
-              showClose: true,
-              message: res.data.info,
-              type: 'success'
-            })
-          } else {
-            this.$message.error({
-              message: res.data.info,
-              showClose: true
-            })
-            this.loginForm.password = ''
-          }
-        })
-    },
+    // 提交按钮
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.sendData(this.qs.stringify(this[formName]))
+          this.sendData(formName)
         } else {
           return false
         }
       })
-    }
-  },
-  created () {
+    },
+    // 账号密码加密
+    async encrypt (formName) {
+      let encrypt = new JSEncrypt()
+      encrypt.setPublicKey(this.pubkey)
+      let encryptPwd = encrypt.encrypt(this[formName].password)
+      return encryptPwd
+    },
+    // 发送数据
+    async sendData (formName) {
+      let data = JSON.parse(JSON.stringify(this[formName]))
+      data.password = await this.encrypt(formName)
+
+      let resData = await this.axios.post('/v1/register', data)
+      if (resData.data.status) {
+        localStorage.setItem('token', resData.data.data.token)
+        this.$router.push({
+          path: '/index'
+        })
+        this.$message({
+          message: resData.data.msg,
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: resData.data.msg,
+          type: 'error'
+        })
+        this.loginForm.password = ''
+      }
+    },
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
-.login
-  height 100vh
+.register
+  height 100%
   text-align center
   .el-form
     padding 7rem 4rem
     .el-input
-      i
+      .phone, .password, .checkPassword
         color $darkBlueColor
         font-size 2.2rem
     .btn-lg

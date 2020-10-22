@@ -40,13 +40,18 @@ export default {
     longpress: {
       bind: function (el, binding, vnode) {
         let pressTimer = null
-
+        let countdown
         // 创建计时器
         let start = (e) => {
           if (e.type === 'click' && e.button !== 0) return false
           if (pressTimer === null) {
             pressTimer = setTimeout((e) => {
               binding.value(e)
+              countdown = setTimeout(() => {
+                vnode.context.$refs.rcordingPopover.overtimeMessage()
+                cancel()
+              }, 1000 * 60)
+
             }, 200)
           }
         }
@@ -59,10 +64,14 @@ export default {
               vnode.context.recStop()
             }
             vnode.context.$refs.rcordingPopover.changePopoverState(false)
+            clearTimeout(countdown)
             clearTimeout(pressTimer)
             pressTimer = null
           }
         }
+
+
+
 
         // 添加事件监听器
         el.addEventListener("mousedown", start)

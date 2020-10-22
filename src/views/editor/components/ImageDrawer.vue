@@ -18,8 +18,9 @@
         <el-upload
           ref="cameraUpload"
           class="camera-upload"
-          :action="actionPath"
-          :data="param"
+          accept="image/jpg,image/png,image/jpeg"
+          :action="uploadSettings.detail.action"
+          :data="{token:this.uploadSettings.detail.token}"
           :multiple="false"
           :limit="1"
           :show-file-list="false"
@@ -42,14 +43,12 @@
         <el-upload
           ref="albumUpload"
           class="album-upload"
-          :action="actionPath"
-          :data="param"
-          :multiple="false"
-          :limit="1"
-          :show-file-list="false"
+          accept="image/jpg,image/png,image/jpeg"
+          :action="uploadSettings.detail.action"
+          :http-request="uploadImages"
           :before-upload="beforeImageUpload"
-          :on-progress="handleImageProgress"
-          :on-success="handleImageSuccess"
+          :multiple="true"
+          :show-file-list="false"
         >
           <el-button
             size="medium"
@@ -68,10 +67,21 @@ export default {
   data () {
     return {
       drawer: false,
-      domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
-      actionPath: 'https://upload-z2.qiniup.com',
-      param: {
-        token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:2osPHWcK_Cl6SW6uvM2eF9vpFM4=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAyODUzNTIwfQ=='
+      uploadSettings: {
+        detail: {
+          // 上传地址
+          action: 'https://upload-z2.qiniup.com',
+          domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
+          token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:r56MVhr16jtAfW9E4t4B2s0puK0=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAzMjk5NzI1fQ==',
+          // 文件上传格式
+          fileType: ['image/png', 'image/jpg', 'image/jpeg'],
+          // 文件上传大小 单位M
+          fileSzie: 5,
+        },
+        error: {
+          fileType: '请上传格式为png/jpg/jpeg的图片',
+          fileSzie: '图片大得于5M 请重新上传'
+        }
       }
     }
   },
@@ -80,8 +90,24 @@ export default {
     changeDrawerState () {
       this.drawer = true
     },
-    // 图片上传前操作---待定
-    beforeImageUpload () {
+    // 图片上传前操作
+    beforeImageUpload (file) {
+      let settings = this.uploadSettings
+      let isFileType = settings.detail.fileType.includes(file.type)
+      let isFileSzie = file.size / 1024 / 1024 < settings.detail.fileSzie
+      if (!isFileType) {
+        this.$message({
+          message: settings.error.fileType,
+          type: 'error'
+        })
+      }
+      if (!isFileSzie) {
+        this.$message({
+          message: settings.error.fileSzie,
+          type: 'error'
+        })
+      }
+      return isFileType && isFileType
     },
     // 图片上传中的钩子
     handleImageProgress () {
@@ -90,7 +116,7 @@ export default {
     // 图片上传成功钩子
     handleImageSuccess (res) {
       let imgWidth = document.querySelector('.content>.el-form').clientWidth
-      let imgUrl = this.domain + res.key + `?imageMogr2/auto-orient/thumbnail/${imgWidth}x/format/jpg/blur/1x0/quality/75`
+      let imgUrl = this.uploadSettings.detail.domain + res.key + `?imageMogr2/auto-orient/thumbnail/${imgWidth}x/format/jpg/blur/1x0/quality/75`
       this.$bus.$emit('addImg', imgUrl)
       this.$message({
         message: '图片上传成功',
@@ -99,6 +125,15 @@ export default {
       this.$refs.cameraUpload.clearFiles()
       this.$refs.albumUpload.clearFiles()
     },
+    // 多图片上传
+    async uploadImages (req) {
+      let uploadData = new FormData
+      uploadData.append('token', this.uploadSettings.detail.token)
+      uploadData.append('file', req.file)
+      this.handleImageProgress()
+      let resData = await this.axios.post(this.uploadSettings.detail.action, uploadData)
+      this.handleImageSuccess(resData.data)
+    }
   }
 }
 </script>

@@ -48,13 +48,28 @@ export default {
       // 记录音频数据
       audioData: [],
       // 记录听写结果
-      resultText: ''
+      resultText: '',
+      uploadSettings: {
+        detail: {
+          // 上传地址
+          action: 'https://upload-z2.qiniup.com',
+          domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
+          token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:r56MVhr16jtAfW9E4t4B2s0puK0=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAzMjk5NzI1fQ==',
+        }
+      },
     }
   },
   methods: {
     // 改变弹出框状态
     changePopoverState (data) {
       this.visible = data
+    },
+    // 超时提醒
+    overtimeMessage () {
+      this.$message({
+        message: '录音时长不得超过60s',
+        type: 'warning'
+      })
     },
     // 录音初始化
     async recordingInit () {
@@ -128,7 +143,14 @@ export default {
               _this.webSocketSend()
             }, 500)
           }
-          _this.$bus.$emit('addAudio', blob, duration)
+
+          let uploadData = new FormData
+          uploadData.append('token', _this.uploadSettings.detail.token)
+          uploadData.append('file', blob)
+          let resData = await _this.axios.post(_this.uploadSettings.detail.action, uploadData)
+          let audioUrl = _this.uploadSettings.detail.domain + resData.data.key
+          _this.$bus.$emit('addAudio', audioUrl, duration)
+
           _this.ws.onmessage = (e) => {
             let jsonData = JSON.parse(e.data)
             if (jsonData.code == 0) {

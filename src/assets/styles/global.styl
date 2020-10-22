@@ -22,6 +22,7 @@ $lightGreyColor = #919799
 $greyColor = #F2F4F3
 $blackColor = #000000
 $redColor = #F56C6C
+$orangeColor = #FFA03C
 // chrome
 // 默认蓝底
 *
@@ -110,8 +111,8 @@ svg:focus, .el-message-box__wrapper:focus
   font-weight 600
   letterSpacing 0.4rem
 .title-md
-  font-size 2.1rem
-  letterSpacing 0.4rem
+  font-size 1.8rem
+  letterSpacing 0.2rem
 // 常规文字
 .text-lg
   font-size 1.8rem
@@ -145,12 +146,21 @@ svg:focus, .el-message-box__wrapper:focus
 // 加载
 .el-loading-text
   padding-top 10px
-// 输入框样式 --- Account-login,User-alter
-.login .el-input__inner, .alter .el-input__inner
+// 下拉菜单
+.el-dropdown-menu
+  width 75px
+.el-dropdown-menu__item
+  display flex
+  flex-direction row
+  align-items center
+  justify-content space-between
+  padding 0 10px
+// 输入框样式 --- user-forgetPwd
+.account .el-input__inner, .forget-pwd .el-input__inner
   background-color transparent
   border 0
   border-radius 0
-  border-bottom 2px solid $darkBlueColor
+  border-bottom 1px solid $darkBlueColor
   color $darkBlueColor
   letterSpacing 0.2rem
   padding-left 3.5rem !important
@@ -159,7 +169,7 @@ svg:focus, .el-message-box__wrapper:focus
     border-bottom-color $blueColor
     +.el-input__prefix>svg
       color $blueColor
-.login .el-form-item.is-error .el-input__inner, .alter .el-form-item.is-error .el-input__inner
+.account .el-form-item.is-error .el-input__inner, .forget-pwd .el-form-item.is-error .el-input__inner
   color $redColor
   +.el-input__prefix>svg
     color $redColor
@@ -169,7 +179,7 @@ svg:focus, .el-message-box__wrapper:focus
   border-radius 30px
   height 30px
   line-height 30px
-.index .tool-bar .el-input__inner+.el-input__prefix>.el-input__icon
+.index .tool-bar .el-input--prefix.el-input--suffix .el-input__icon
   color $darkGreyColor
   line-height 30px
   height 30px

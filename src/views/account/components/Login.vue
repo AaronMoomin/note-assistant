@@ -20,6 +20,7 @@
         <el-input
           v-model="loginForm.phone"
           autocomplete="off"
+          clearable
         >
           <icon-font
             iconCode="icon-shouji1"
@@ -47,6 +48,7 @@
           type="info"
           :underline="false"
           class="text-sm mb-1"
+          disabled
         >忘记密码?</el-link>
       </div>
       <el-form-item>
@@ -58,13 +60,12 @@
       </el-form-item>
       <div class="register">
         <div class="text-sm mt-2">没有账号?快加入我们吧!</div>
-        <router-link to="/register">
-          <el-link
-            type="primary"
-            :underline="false"
-            class="text-md mt-1"
-          >注 册</el-link>
-        </router-link>
+        <el-link
+          type="primary"
+          :underline="false"
+          class="text-md mt-1"
+          @click="changMode"
+        >注 册</el-link>
       </div>
     </el-form>
   </el-container>
@@ -92,14 +93,17 @@ export default {
           { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'change' }
         ],
         password: [
-          { required: true, message: '请输入您的密码', trigger: 'blur' },
-          { min: 5, max: 32, message: '请输入正确的密码', trigger: 'blur' }
+          { required: true, message: '请输入您的密码', trigger: 'change' },
+          { min: 5, max: 32, message: '请输入正确的密码', trigger: 'change' }
         ]
       },
       avatar: avatar
     }
   },
   methods: {
+    changMode () {
+      this.$emit("changMode", "register")
+    },
     errorHandler () {
       return true
     },
@@ -107,24 +111,24 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.encrypt(formName)
-          this.sendData(this[formName])
+          this.sendData(formName)
         } else {
           return false
         }
       })
     },
     // 账号密码加密
-    encrypt (formName) {
+    async encrypt (formName) {
       let encrypt = new JSEncrypt()
       encrypt.setPublicKey(this.pubkey)
-      this[formName].password = encrypt.encrypt(this[formName].password)
+      let encryptPwd = encrypt.encrypt(this[formName].password)
+      return encryptPwd
     },
     // 发送数据
-    async sendData (data) {
+    async sendData (formName) {
+      let data = JSON.parse(JSON.stringify(this[formName]))
+      data.password = await this.encrypt(formName)
       let resData = await this.axios.post('/v1/login', data)
-      console.log(resData.data.status)
-      console.log(resData.data)
       if (resData.data.status) {
         localStorage.setItem('token', resData.data.data.token)
         this.$router.push({

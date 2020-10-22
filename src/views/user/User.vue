@@ -4,10 +4,16 @@
     direction="vertical"
   >
     <el-header>
-      <tool-bar />
+      <tool-bar
+        :content="content"
+        @changContent="changContent"
+      />
     </el-header>
     <el-main>
-      <alter />
+      <component
+        :is="content"
+        @changContent="changContent"
+      />
     </el-main>
     <el-footer>
       <bar />
@@ -17,21 +23,29 @@
 
 <script>
 import ToolBar from './components/ToolBar'
-import Alter from './components/Alter'
+import Functions from './components/Functions'
+import ForgetPwd from './components/ForgetPwd'
+import About from './components/About'
 import Bar from '@/components/Bar'
 
 export default {
   name: 'User',
   components: {
     ToolBar,
-    Alter,
+    Functions,
+    ForgetPwd,
+    About,
     Bar
   },
   data () {
     return {
+      content: 'functions'
     }
   },
   methods: {
+    changContent (data) {
+      this.content = data
+    }
   }
 }
 </script>
@@ -39,4 +53,8 @@ export default {
 <style lang="stylus">
 .user
   height 100%
+  .el-header
+    padding 0
+    height 50px !important
+    margin-bottom 15px
 </style>

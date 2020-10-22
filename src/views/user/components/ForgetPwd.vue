@@ -1,6 +1,6 @@
 <template>
   <el-container
-    class="alter"
+    class="forget-pwd"
     direction="vertical"
   >
     <el-form
@@ -11,7 +11,6 @@
       <div class="avatar mb-3">
         <el-avatar
           :size="130"
-          @error="errorHandler"
         >
           <img :src="avatar" />
         </el-avatar>
@@ -19,7 +18,7 @@
       <el-form-item prop="phone">
         <el-input
           v-model="alterForm.phone"
-          readonly="true"
+          :readonly="true"
         >
           <icon-font
             iconCode="icon-shouji1"
@@ -81,7 +80,7 @@
 import avatar from '@/assets/images/account/avatar.png'
 
 export default {
-  name: 'Alter',
+  name: 'ForgetPwd',
   data () {
     let validatePass = (rule, value, callback) => {
       if (this.alterForm.checkPassword !== this.alterForm.newPassword || this.alterForm.checkPassword === '') {
@@ -123,7 +122,7 @@ export default {
 
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
-.alter
+.forget-pwd
   text-align center
   background-color $whiteColor
   box-shadow 0 2px 12px 0 rgba(0, 0, 0, 0.1)

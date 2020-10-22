@@ -33,7 +33,7 @@ module.exports = {
         changeOrigin: true
       },
       '/v1': {
-        target: "",
+        target: "htttp://test.com",
         pathRewrite: { '^/v1': '/v1' },
         changeOrigin: true
       }

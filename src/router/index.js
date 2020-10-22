@@ -2,8 +2,8 @@ import Vue from 'vue'
 import axios from 'axios'
 
 import VueRouter from 'vue-router'
-import Account from '@/views/account/Account'
-// import Register from ''
+// import Account from '@/views/account/Account'
+import Register from '@/views/account/components/Register'
 import Index from '@/views/index/Index'
 import NoteEditor from '@/views/editor/NoteEditor'
 import User from '@/views/user/User'
@@ -15,14 +15,14 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Account',
-    component: Account
+    name: 'User',
+    component: User
   },
-  // {
-  //   path: '/register',
-  //   name: 'Register',
-  //   component: Register
-  // },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
+  },
   {
     path: '/index',
     name: 'Index',

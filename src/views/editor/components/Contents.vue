@@ -11,11 +11,11 @@
         v-slide:swipeleft="removeItem"
         v-slide:swiperight="rightSlide"
       >
-        <!-- 文本 -->
+        <!-- 图像 -->
         <div
           v-if="item.type ==='image'"
           class="image"
-          @dblclick.once="imageOcr($event,item.key)"
+          @click.once="imageOcr($event,item.key)"
         >
           <el-image :src="item.value">
             <div
@@ -46,18 +46,19 @@
           <div class="audio-duration">{{item.duration}}''</div>
           <audio :src="item.value" />
         </div>
-        <!-- 图像 -->
+        <!-- 文本 -->
         <el-input
           v-else-if="item.type === 'text' || item.type === 'ocrText'"
           :readonly="isRead"
           type="textarea"
           :rows="2"
           autosize
-          :placeholder="item.type === 'text' ? '请输入内容':'正在识别中...'"
+          :placeholder="item.type === 'text' || (item.type === 'ocrText' && !item.isOcring ) ? '请输入内容':'正在识别中...'"
           v-model="item.value"
         />
       </el-form-item>
     </el-form>
+    <!-- <button @click="contentToPdf">124</button> -->
   </el-container>
 </template>
 
@@ -109,7 +110,7 @@ export default {
           y = e.touches[0].pageY - startY
           console.log(`x:${Math.abs(x)} y:${Math.abs(y)}`)
           // 触摸点起始点与当前点的距离
-          if (Math.abs(x) > 5) return vnode.elm.style.transform = `translateX(${x}px)`
+          if (Math.abs(x) > 15 && Math.abs(y) < 50) return vnode.elm.style.transform = `translateX(${x}px)`
         })
 
         // 消失的触摸点
@@ -168,28 +169,29 @@ export default {
       let element = document.querySelector('.content>.el-form>.el-form-item:last-child')
       element.scrollIntoView()
     },
+    // 添加图像
     async addImg (data) {
       await this.contentForm.data.push({
         type: 'image',
         value: data,
         key: Date.now()
       })
-      this.scrollIntoView()
     },
+    // 添加音频
     async addAudio (data, duration) {
       let template = {
         type: 'audio',
         // eslint-disable-next-line
-        value: (window.URL || webkitURL).createObjectURL(data),
+        value: data,
         duration: parseInt(duration / 1000),
         key: Date.now()
       }
       await this.contentForm.data.push(template)
       let returnData = await this.addText('ocrText')
       this.audioKey = returnData.key
-      this.scrollIntoView()
       return returnData
     },
+    // 添加文本
     async addText (type = 'text', key = null) {
       let returnPosition = 0
       let data = this.contentForm.data
@@ -198,15 +200,17 @@ export default {
         value: '',
         key: Date.now()
       }
+      if (type === 'ocrText') {
+        template.isOcring = true
+      }
       if (key) {
         let index = this.contentForm.data.findIndex(e => e.key === key) + 1
         await data.splice(index, 0, template)
-        returnPosition = index + 1
+        returnPosition = index
       } else {
         let position = await data.push(template)
         returnPosition = position - 1
       }
-      this.scrollIntoView()
       return {
         position: returnPosition,
         key: template.key
@@ -248,14 +252,26 @@ export default {
       }
       let resData = await this.axios.post('/imageocr', sendData, config)
       let orcResult = resData.data.words_result.map(e => e.words).join('\n')
-      this.contentForm.data[returnData.position].value = orcResult
+
+      // if(orcResult.length = 0){
+
+      // }
+
+      let ocrText = this.contentForm.data[returnData.position]
+      if (ocrText.type === 'ocrText') {
+        ocrText.value = orcResult
+        ocrText.isOcring = false
+      }
       loading.close()
     },
     // 语音识别
     async recordingOcr (value = '') {
       let key = this.audioKey
       let index = await this.contentForm.data.findIndex(e => e.key === key)
-      this.contentForm.data[index].value = value
+      let ocrText = this.contentForm.data[index]
+
+      ocrText.value = value
+      ocrText.isOcring = false
       this.audioKey = 0
     },
     async removeItem (el, dx, key) {
@@ -284,6 +300,9 @@ export default {
       eDom.querySelector('audio').play()
       toggleActive()
       setTimeout(toggleActive, (duration * 1000))
+    },
+    textPlaceholder () {
+
     }
   },
   mounted () {
