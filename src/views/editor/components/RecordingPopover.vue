@@ -53,13 +53,18 @@ export default {
         detail: {
           // 上传地址
           action: 'https://upload-z2.qiniup.com',
-          domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
-          token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:r56MVhr16jtAfW9E4t4B2s0puK0=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAzMjk5NzI1fQ==',
+          domain: 'https://notes.cdn.librejo.cn/',
+          token: ''
         }
       },
     }
   },
   methods: {
+    // 获取上传token
+    async getToken () {
+      let resData = await this.axios.post('/v1/getToken')
+      this.uploadSettings.detail.token = resData.data.data
+    },
     // 改变弹出框状态
     changePopoverState (data) {
       this.visible = data
@@ -144,6 +149,7 @@ export default {
             }, 500)
           }
 
+          await _this.getToken()
           let uploadData = new FormData
           uploadData.append('token', _this.uploadSettings.detail.token)
           uploadData.append('file', blob)

@@ -11,7 +11,7 @@
     <el-input
       :readonly="isRead"
       class="title title-md"
-      v-model="title"
+      v-model="noteTitle"
       autocomplete="off"
     >
     </el-input>
@@ -31,7 +31,6 @@
         <icon-font
           iconCode="icon-list"
           v-show="isRead"
-          :data-clipboard-text="shareMsg"
         />
       </span>
       <el-dropdown-menu slot="dropdown">
@@ -44,18 +43,22 @@
           <span>分 享</span>
         </el-dropdown-item>
         <el-dropdown-item
-          command="favorites"
-          @click="favorites"
+          command="favorite"
+          @click="favorite"
         >
           <icon-font
             iconCode="icon-shoucang1"
-            :class="isFavorite?'favorites':''"
+            :class="favoriteStatus?'favorite':''"
           />
           <span>收 藏</span>
         </el-dropdown-item>
+        <el-dropdown-item command="delNote">
+          <icon-font iconCode="icon-icon-test" />
+          <span>删 除</span>
+        </el-dropdown-item>
         <el-dropdown-item command="doc">
           <icon-font iconCode="icon-doc" />
-          <span >DOC</span>
+          <span>DOC</span>
         </el-dropdown-item>
         <el-dropdown-item command="pdf">
           <icon-font iconCode="icon-pdf" />
@@ -74,11 +77,26 @@ export default {
   props: {
     title: String,
     isRead: Boolean,
-    isFavorite: Boolean
+    isFavorite: Boolean,
+    nId: Number
   },
   data () {
     return {
-      shareMsg: window.location.href
+      noteId: null,
+      noteTitle: this.title,
+      shareMsg: window.location.href,
+      favoriteStatus: this.isFavorite
+    }
+  },
+  watch: {
+    title () {
+      this.noteTitle = this.title
+    },
+    isFavorite () {
+      this.favoriteStatus = this.isFavorite
+    },
+    noteTitle () {
+      this.$emit("changeTitle", this.noteTitle)
     }
   },
   methods: {
@@ -87,10 +105,7 @@ export default {
     },
     // 保存
     save () {
-      this.$message({
-        message: '保存成功',
-        type: 'success'
-      })
+      this.$bus.$emit('sendData')
       this.changMode()
     },
     // 下拉菜单指令集
@@ -98,72 +113,124 @@ export default {
       this[command]()
     },
     // 分享
-    share () {
+    async share () {
       let _this = this
-      let fakeElement = document.createElement('button')
-      let clipboard = new Clipboard(fakeElement, {
-        text: function () {
-          return '测试复制功能'
-        },
-        action: function () {
-          return 'copy'
-        }
-      })
-      clipboard.on('success', function () {
-        clipboard.destroy()
-        _this.$message({
-          message: '链接复制成功！',
-          type: 'success'
+      let noteId = this.nId ? this.nId : this.noteId
+      let resData = await this.axios.post(`/v1/getShareKey?nId=${noteId}`)
+      let shareId = resData.data.data.shareId
+      let shareUrl = `${window.location.hostname}/share/${shareId}`
+      // 判断是否为微信
+      let isWeiXin = () => { return navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1 }
+      if (isWeiXin()) {
+        this.$notify({
+          title: '分享成功,请长按复制分享链接',
+          message: shareUrl,
+          type: 'success',
+          duration: 0
         })
-      })
-      clipboard.on('error', function () {
-        clipboard.destroy()
-        _this.$message({
-          message: '链接复制失败!',
-          type: 'warning'
+      } else {
+        let fakeElement = document.createElement('button')
+        let clipboard = new Clipboard(fakeElement, {
+          text: function () {
+            return shareUrl
+          },
+          action: function () {
+            return 'copy'
+          }
         })
-      })
-      fakeElement.click()
+        clipboard.on('success', function () {
+          clipboard.destroy()
+          _this.$message({
+            message: '链接复制成功！',
+            type: 'success'
+          })
+        })
+        clipboard.on('error', function () {
+          clipboard.destroy()
+          _this.$message({
+            message: '链接复制失败!',
+            type: 'warning'
+          })
+        })
+        fakeElement.click()
+      }
     },
     // 收藏/取消收藏
-    async favorites () {
+    async favorite () {
       let url = 'changeFavState'
+      this.favoriteStatus = !this.favoriteStatus
       let data = {
-        params: {
-          favoriteState: !this.isFavorite
-        }
+        id: this.nId,
+        favorite: this.favoriteStatus
       }
-      let resData = await this.axios.get(`/v1/${url}`, data)
+      let resData = await this.axios.put(`/v1/${url}`, data)
       if (resData.data.status) {
         this.$message({
-          message: resData.data.msg,
+          message: '收藏成功',
           type: 'success'
         })
       } else {
         this.$message({
-          message: resData.data.msg,
+          message: '收藏失败',
+          type: 'error'
+        })
+      }
+    },
+    // 删除
+    async delNote () {
+      let url = "delNote"
+      let noteId = this.nId ? this.nId : this.noteId
+      let data = {
+        params: {
+          nId: noteId
+        }
+      }
+      let resData = await this.axios.delete(`/v1/${url}`, data)
+      if (resData.data.status) {
+        this.$router.push({
+          path: '/index'
+        })
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: '删除失败',
           type: 'error'
         })
       }
     }
-  }
+  },
+  mounted () {
+    // 监听事件
+    this.$bus.$on("addNoteId", data => {
+      this.noteId = data
+    })
+  },
+  beforeDestroy () {
+    this.$bus.$off('sendData')
+  },
 }
 </script>
 
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
 .tool-bar
+  padding 5px 20px
+  // background-color $blueColor
+  background-image linear-gradient(to right, #61D1F7, #55B7F8, #50A2F8)
   justify-content space-between
   align-items center
   .title
     width auto
   svg
     font-size 2rem
-    color $darkBlueColor
+    color $whiteColor
     &:hover
-      color $blueColor
-.favorites
+      color $greyColor
+.favorite
   color $orangeColor
 .pdf-text
-  letterSpacing(.15rem)
+  letterSpacing(0.15rem)
 </style>

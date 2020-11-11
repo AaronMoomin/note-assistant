@@ -3,9 +3,21 @@
     class="tool-bar"
     direction="vertical"
   >
-    <!-- <div class="top">
-      <span>智 能 云 笔 记</span>
-    </div> -->
+    <!-- <svg
+      width="100vw"
+      height="200"
+      id="radian"
+    >
+      <circle
+        cx="50vw"
+        cy="-400"
+        r="540"
+        fill="#52AEF9"
+      />
+    </svg> -->
+    <div class="top">
+      <span>智能云笔记</span>
+    </div>
     <div class="bottom">
       <el-input
         v-model="search.value"
@@ -20,11 +32,11 @@
         />
       </el-input>
       <el-button
-        :class="this.state.favorites ? 'active favorites':'favorites'"
+        :class="this.state.favorite ? 'active favorite':'favorite'"
         size="mini"
         circle
         :disabled="searchState"
-        @click="getData('favorites')"
+        @click="getData('favorite')"
       >
         <icon-font iconCode="icon-shoucang1" />
       </el-button>
@@ -42,13 +54,14 @@
 </template>
 
 <script>
+
 export default {
   name: 'ToolBar',
   data () {
     return {
       state: {
         search: false,
-        favorites: false,
+        favorite: false,
         sort: false
       },
       search: {
@@ -56,8 +69,8 @@ export default {
         value: '',
         method: 'getSearchNote'
       },
-      favorites: {
-        name: 'favorites',
+      favorite: {
+        name: 'favorite',
         method: 'getFavoriteNote'
       },
       sort: {
@@ -80,7 +93,7 @@ export default {
 
       // 收藏 && 排序 => 取消收藏 排序自动取消
       // 排序 => 点击收藏 排序自动取消
-      if (_data.name === 'favorites') {
+      if (_data.name === 'favorite') {
         if (!_state[_data.name] || (_state[_data.name] && _state['sort'])) {
           _state['sort'] = false
         }
@@ -91,37 +104,47 @@ export default {
       this.$bus.$emit(search.method, search.value)
     },
     searchInput (value) {
-      if (value.length === 0) {
+      if (!value) {
+        let search = this.search
         this.state.search = false
-        this.$bus.$emit(this.search.method)
+        this.$bus.$emit(search.method)
       } else {
         this.state.search = true
-        this.state.favorites = false
+        this.state.favorite = false
         this.state.sort = false
       }
     }
-  },
-  created () {
   }
 }
 </script>
 
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
-.top
-  text-align center
-  font-size 2.2rem
-  padding-bottom 5px
-.bottom
-  display flex
-  .el-button
-    margin-left 5px
-    color $darkGreyColor
-    border-color $darkGreyColor
-  .favorites.active
-    color $orangeColor
-    border-color $orangeColor
-  .sort.active
-    color $blueColor
-    border-color $blueColor
+.tool-bar
+  height 100px
+  #radian
+    position absolute
+    top 0
+    left 0
+    z-index 0
+  .top
+    text-align center
+    font-size 2.2rem
+    color $whiteColor
+    margin-bottom 12px
+    letterSpacing 0.7rem
+    z-index 1
+  .bottom
+    display flex
+    z-index 1
+    .el-button
+      margin-left 5px
+      color $darkGreyColor
+      border-color $darkGreyColor
+    .favorite.active
+      color $orangeColor
+      border-color $orangeColor
+    .sort.active
+      color $blueColor
+      border-color $blueColor
 </style>

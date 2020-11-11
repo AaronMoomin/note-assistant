@@ -8,7 +8,7 @@
       iconCode="icon-fanhui"
       @click.native="changContent"
     />
-    <span class="title-md">智能云笔记</span>
+    <span class="title">智能云笔记</span>
   </el-container>
 </template>
 
@@ -33,14 +33,23 @@ export default {
 @import '~styles/global.styl'
 .tool-bar
   height 100%
-  display flex
+  justify-content center
   align-items center
-  padding 0 20px
-  background-color $blueColor
+  z-index 1
   svg
+    position absolute
+    left 20px
     color $whiteColor
     margin-right 10px
     font-size 2rem
-  .title-md
+    z-index 1
+  .title
+    font-size 2.2rem
     color $whiteColor
+    letterSpacing 0.7rem
+    z-index 1
+  #radian
+    position absolute
+    left 0
+    z-index 0
 </style>

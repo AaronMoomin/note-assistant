@@ -16,6 +16,20 @@
           <img :src="avatar" />
         </el-avatar>
       </div>
+      <el-form-item prop="username">
+        <el-input
+          v-model="registerForm.username"
+          autocomplete="off"
+          placeholder="请输入用户名"
+          clearable
+        >
+          <icon-font
+            iconCode="icon-xingmingyonghumingnicheng"
+            slot="prefix"
+            class="username"
+          />
+        </el-input>
+      </el-form-item>
       <el-form-item prop="phone">
         <el-input
           v-model="registerForm.phone"
@@ -80,7 +94,7 @@
 </template>
 
 <script>
-import JSEncrypt from 'jsencrypt'
+// import JSEncrypt from 'jsencrypt'
 import avatar from '@/assets/images/account/avatar.png'
 
 export default {
@@ -94,16 +108,21 @@ export default {
       }
     }
     return {
-      pubkey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4AHCyzGYb5P37Otg7pCUFMqpI
-            ef5puEcXatDrUuk9bp91In1Q7RA57+QJbnS2aqf6SPwNy8MmId6xwp28ny4mIbTw
-            z2h3hW5wsoQMA4vVoiX8fXBUg5gt6hYM6oZHapSw1rIRkLiKI5yK6csUiIQ9k5s8
-            XTAxVjLWINSZ74+yuQIDAQAB`,
+      // pubkey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4AHCyzGYb5P37Otg7pCUFMqpI
+      //       ef5puEcXatDrUuk9bp91In1Q7RA57+QJbnS2aqf6SPwNy8MmId6xwp28ny4mIbTw
+      //       z2h3hW5wsoQMA4vVoiX8fXBUg5gt6hYM6oZHapSw1rIRkLiKI5yK6csUiIQ9k5s8
+      //       XTAxVjLWINSZ74+yuQIDAQAB`,
       checkPassword: '',
       registerForm: {
+        username: '',
         phone: '',
         password: '',
       },
       rules: {
+        username: [
+          { required: true, message: '请输入您的用户名', trigger: 'change' },
+          { pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: '请输入正确的用户名', trigger: 'change' }
+        ],
         phone: [
           { required: true, message: '请输入您的手机号', trigger: 'change' },
           { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'change' }
@@ -137,33 +156,28 @@ export default {
       })
     },
     // 账号密码加密
-    async encrypt (formName) {
-      let encrypt = new JSEncrypt()
-      encrypt.setPublicKey(this.pubkey)
-      let encryptPwd = encrypt.encrypt(this[formName].password)
-      return encryptPwd
-    },
+    // async encrypt (formName) {
+    //   let encrypt = new JSEncrypt()
+    //   encrypt.setPublicKey(this.pubkey)
+    //   let encryptPwd = encrypt.encrypt(this[formName].password)
+    //   return encryptPwd
+    // },
     // 发送数据
     async sendData (formName) {
       let data = JSON.parse(JSON.stringify(this[formName]))
-      data.password = await this.encrypt(formName)
-
       let resData = await this.axios.post('/v1/register', data)
       if (resData.data.status) {
-        localStorage.setItem('token', resData.data.data.token)
-        this.$router.push({
-          path: '/index'
-        })
         this.$message({
-          message: resData.data.msg,
+          message: '注册成功',
           type: 'success'
         })
+        this.changMode()
       } else {
         this.$message({
-          message: resData.data.msg,
+          message: resData.data.data,
           type: 'error'
         })
-        this.loginForm.password = ''
+        this.registerForm.password = this.checkPassword = ''
       }
     },
   }
@@ -178,7 +192,7 @@ export default {
   .el-form
     padding 7rem 4rem
     .el-input
-      .phone, .password, .checkPassword
+      .username, .phone, .password, .checkPassword
         color $darkBlueColor
         font-size 2.2rem
     .btn-lg

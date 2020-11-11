@@ -24,7 +24,7 @@
 <script>
 import ToolBar from './components/ToolBar'
 import Functions from './components/Functions'
-import ForgetPwd from './components/ForgetPwd'
+import AlterPwd from './components/AlterPwd'
 import About from './components/About'
 import Bar from '@/components/Bar'
 
@@ -33,7 +33,7 @@ export default {
   components: {
     ToolBar,
     Functions,
-    ForgetPwd,
+    AlterPwd,
     About,
     Bar
   },
@@ -55,6 +55,8 @@ export default {
   height 100%
   .el-header
     padding 0
-    height 50px !important
     margin-bottom 15px
+    background-image linear-gradient(to right, #61D1F7, #55B7F8, #50A2F8)
+  .el-main
+    z-index 2
 </style>

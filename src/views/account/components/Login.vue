@@ -72,17 +72,17 @@
 </template>
 
 <script>
-import JSEncrypt from 'jsencrypt'
+// import JSEncrypt from 'jsencrypt'
 import avatar from '@/assets/images/account/avatar.png'
 
 export default {
   name: 'Login',
   data () {
     return {
-      pubkey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4AHCyzGYb5P37Otg7pCUFMqpI
-            ef5puEcXatDrUuk9bp91In1Q7RA57+QJbnS2aqf6SPwNy8MmId6xwp28ny4mIbTw
-            z2h3hW5wsoQMA4vVoiX8fXBUg5gt6hYM6oZHapSw1rIRkLiKI5yK6csUiIQ9k5s8
-            XTAxVjLWINSZ74+yuQIDAQAB`,
+      // pubkey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4AHCyzGYb5P37Otg7pCUFMqpI
+      //       ef5puEcXatDrUuk9bp91In1Q7RA57+QJbnS2aqf6SPwNy8MmId6xwp28ny4mIbTw
+      //       z2h3hW5wsoQMA4vVoiX8fXBUg5gt6hYM6oZHapSw1rIRkLiKI5yK6csUiIQ9k5s8
+      //       XTAxVjLWINSZ74+yuQIDAQAB`,
       loginForm: {
         phone: '',
         password: ''
@@ -118,16 +118,16 @@ export default {
       })
     },
     // 账号密码加密
-    async encrypt (formName) {
-      let encrypt = new JSEncrypt()
-      encrypt.setPublicKey(this.pubkey)
-      let encryptPwd = encrypt.encrypt(this[formName].password)
-      return encryptPwd
-    },
+    // async encrypt (formName) {
+    //   let encrypt = new JSEncrypt()
+    //   encrypt.setPublicKey(this.pubkey)
+    //   let encryptPwd = encrypt.encrypt(this[formName].password)
+    //   return encryptPwd
+    // },
     // 发送数据
     async sendData (formName) {
       let data = JSON.parse(JSON.stringify(this[formName]))
-      data.password = await this.encrypt(formName)
+      // data.password = await this.encrypt(formName)
       let resData = await this.axios.post('/v1/login', data)
       if (resData.data.status) {
         localStorage.setItem('token', resData.data.data.token)
@@ -135,12 +135,12 @@ export default {
           path: '/index'
         })
         this.$message({
-          message: resData.data.msg,
+          message: '登陆成功',
           type: 'success'
         })
       } else {
         this.$message({
-          message: resData.data.msg,
+          message: '账号或密码错误',
           type: 'error'
         })
         this.loginForm.password = ''

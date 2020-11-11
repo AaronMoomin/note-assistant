@@ -4,6 +4,7 @@
     direction="vertical"
     v-infinite-scroll="lazyLoad"
     infinite-scroll-distance="100"
+    infinite-scroll-delay="400"
     :infinite-scroll-disabled="lazyLoadDisabled"
   >
     <router-link
@@ -17,25 +18,27 @@
             {{item.title}}
           </div>
           <div
-            v-if="item.favorites"
-            class="favorites"
+            v-if="item.favorite"
+            class="favorite"
           >
             <icon-font iconCode="icon-shoucang1" />
           </div>
         </div>
         <div class="card-content">
-          {{item.abstract}}
+          {{item.summary}}
         </div>
         <div class="card-footer">
-          <span class="date">{{item.date}}</span>
-          <span class="time">{{item.time}}</span>
+          <span class="date">{{formatDate(item.date)}}</span>
+          <span class="time">{{formatTime(item.date)}}</span>
         </div>
       </el-card>
     </router-link>
-    <div class="message">
+    <div
+      class="message"
+      v-show="data.length >=10"
+    >
       {{lazyLoadDisabled?'没有更多了':'加载中...'}}
     </div>
-
   </el-container>
 </template>
 
@@ -44,154 +47,60 @@ export default {
   name: 'Content',
   data () {
     return {
-      search: '',
+      searchKey: '',
       currentPage: 1,
       noteCount: 0,
       index: 0,
       currentGetUrl: '',
-      data: [
-        {
-          id: 1,
-          favorites: true,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 2,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 3,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 4,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 5,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 6,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 7,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 8,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 9,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 10,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 11,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 12,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        },
-        {
-          id: 13,
-          favorites: false,
-          title: '测试',
-          abstract: '这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字,这是一段测试文字',
-          date: '2020-10-05',
-          time: '下午6:36'
-        }
-      ],
+      data: [],
       noteList: {
-        asc: 'getNoteList',
-        desc: 'getNoteListDesc'
+        method: 'get',
+        url: {
+          asc: 'getNoteList',
+          desc: 'getNoteListDesc'
+        }
       },
       favoriteNoteList: {
-        asc: 'getFavoriteNote',
-        desc: 'getFavoriteNoteDesc'
+        method: 'get',
+        url: {
+          asc: 'getFavoriteNote',
+          desc: 'getFavoriteNoteDesc'
+        }
       },
       searchNoteList: {
-        asc: 'getSearchNoteList'
-      }
-    }
-  },
-  computed: {
-    lazyLoadDisabled () {
-      return this.data.length === this.noteCount
+        method: 'post',
+        url: {
+          asc: 'searchNote'
+        }
+      },
+      lazyLoadDisabled: false
     }
   },
   methods: {
     // 初始化
     init () {
-      this.getNoteList()
+      this.getDataList()
     },
-    // page === 0 时 代表获取所有页数笔记
-    async getDataList (url = this.noteList.asc, page = 1, searchData = null) {
-      let data = {
+    async getDataList (url = this.noteList.url.asc, page = 1, searchKey = this.searchKey) {
+      let method = searchKey.length === 0 ? 'get' : 'post'
+      let data
+      searchKey.length === 0 ? data = {
         params: {
           page: page
         }
+      } : data = {
+        title: searchKey,
+        page: page
       }
-      if (searchData) {
-        data.params.searchData = searchData
-      }
-      let resData = await this.axios.get(`/v1/${url}`, data)
+      let resData = await this.axios[method](`/v1/${url}`, data)
       if (resData.data.status) {
-        this.data.push(resData.data.data.data)
-        this.noteCount = resData.data.data.noteCount
+        let data = resData.data.data
+        data.length !== 10 ? this.lazyLoadDisabled = true : this.lazyLoadDisabled = false
+        if (page === 1) {
+          this.data = data
+        } else {
+          this.data = this.data.concat(data)
+        }
       } else {
         this.$message({
           message: resData.data.msg,
@@ -201,8 +110,21 @@ export default {
     },
     lazyLoad () {
       let url
-      this.currentGetUrl.length === 0 ? url = this.noteList.asc : url = this.currentGetUrl
-      this.getDataList(url, this.$isServer + 1)
+      if (this.data.length) {
+        this.currentGetUrl.length === 0 ? url = this.noteList.url.asc : url = this.currentGetUrl
+        this.getDataList(url, this.currentPage + 1)
+      }
+    },
+    formatDate (timeStamp) {
+      let year = new Date(timeStamp).getFullYear()
+      let month = new Date(timeStamp).getMonth() + 1
+      let day = new Date(timeStamp).getDate() < 10 ? `0${new Date(timeStamp).getDate()}` : new Date(timeStamp).getDate()
+      return `${year}-${month}-${day}`
+    },
+    formatTime (timeStamp) {
+      let hours = new Date(timeStamp).getHours()
+      let minutes = new Date(timeStamp).getMinutes() < 10 ? `0${new Date(timeStamp).getMinutes()}` : new Date(timeStamp).getMinutes()
+      return `${hours}:${minutes}`
     }
   },
   created () {
@@ -212,25 +134,31 @@ export default {
     // 收藏
     this.$bus.$on("getFavoriteNote", (data) => {
       let url = null
-      data.favorites ? url = this.favoriteNoteList.asc : url = this.noteList.asc
+      data.favorite ? url = this.favoriteNoteList.url.asc : url = this.noteList.url.asc
       this.currentGetUrl = url
+      this.currentPage = 1
       this.getDataList(url)
     })
     // 排序
     this.$bus.$on("getNoteListDesc", (data) => {
       let url = null
       if (data.sort) {
-        data.favorites ? url = this.favoriteNoteList.desc : url = this.noteList.desc
+        data.favorite ? url = this.favoriteNoteList.url.desc : url = this.noteList.url.desc
       } else {
-        data.favorites ? url = this.favoriteNoteList.asc : url = this.noteList.asc
+        data.favorite ? url = this.favoriteNoteList.url.asc : url = this.noteList.url.asc
       }
+      this.currentGetUrl = url
+      this.currentPage = 1
       this.getDataList(url)
     })
     // 搜索
     this.$bus.$on("getSearchNote", (data) => {
       let url = null
-      data ? url = this.searchNoteList.asc : url = this.noteList.asc
-      this.getDataList(url, 0, data)
+      this.searchKey = data ? data : ''
+      data ? url = this.searchNoteList.url.asc : url = this.noteList.url.asc
+      this.currentGetUrl = url
+      this.currentPage = 1
+      this.getDataList(url, this.currentPage, data)
     })
   }
 }
@@ -248,7 +176,7 @@ export default {
     .title
       font-size 1.6rem
       font-weight 700
-    .favorites
+    .favorite
       color $orangeColor
       font-size 1.4rem
   .card-content

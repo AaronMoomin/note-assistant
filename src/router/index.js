@@ -1,12 +1,12 @@
 import Vue from 'vue'
-import axios from 'axios'
 
 import VueRouter from 'vue-router'
-// import Account from '@/views/account/Account'
+import Account from '@/views/account/Account'
 import Register from '@/views/account/components/Register'
 import Index from '@/views/index/Index'
 import NoteEditor from '@/views/editor/NoteEditor'
 import User from '@/views/user/User'
+import Share from '@/views/share/Share'
 
 import Test from '@/views/test/Test'
 
@@ -15,8 +15,8 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'User',
-    component: User
+    name: 'Account',
+    component: Account
   },
   {
     path: '/register',
@@ -27,19 +27,30 @@ const routes = [
     path: '/index',
     name: 'Index',
     component: Index,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
   },
   {
     path: '/editor',
     name: 'NoteEditor',
     component: NoteEditor,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/editor/:id?',
+    name: 'NoteEditor',
+    component: NoteEditor,
+    meta: { requiresAuth: true }
   },
   {
     path: '/user',
     name: 'User',
     component: User,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: true }
+  },
+  {
+    path:'/share/:id?',
+    name: 'Share',
+    component: Share,
   },
   {
     path: '/test',
@@ -50,21 +61,14 @@ const routes = [
 
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (localStorage.getItem('token')) {
-      let result = await axios.get('/api/admin')
-      if (result.data.state === 1) {
-        next({
-          path: '/',
-          query: { redirect: to.fullPath }
-        })
-      } else {
-        next()
-      }
+      next()
     } else {
       next({
         path: '/',

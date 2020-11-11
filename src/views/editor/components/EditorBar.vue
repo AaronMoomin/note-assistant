@@ -134,6 +134,7 @@ export default {
 <style lang="stylus" scoped>
 @import '~styles/global.styl'
 .editor-bar
+  -webkit-touch-callout none
   -webkit-user-select none
   -moz-user-select none
   -ms-user-select none

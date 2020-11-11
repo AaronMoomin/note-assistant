@@ -28,16 +28,35 @@ module.exports = {
   devServer: {
     proxy: {
       '/imageocr': {
-        target: `https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token='24.fa80bf8ce4ac7249f62e1fa4c928b5fe.2592000.1605023270.282335-22805053'`,
-        pathRewrite: { '^/imageocr': '' },
+        target: "https://notes.sxisa.com",
+        pathRewrite: { '^/imageocr': '/imageocr' },
         changeOrigin: true
       },
       '/v1': {
-        target: "htttp://test.com",
+        target: "http://112.74.205.153:8080",
         pathRewrite: { '^/v1': '/v1' },
         changeOrigin: true
       }
     },
     disableHostCheck: true
+  },
+  pwa: {
+    themeColor: "#52AEF9",
+    msTileColor: "#52AEF9",
+    appleMobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusBarStyle: 'black',
+    workboxPluginMode: 'InjectManifest',
+    iconPaths: {
+      favicon32: 'public/img/icons/favicon-32x32.png',
+      favicon16: 'public/img/icons/favicon-16x16.png',
+      appleTouchIcon: 'public/img/icons/apple-touch-icon-152x152.png',
+      maskIcon: 'public/img/icons/safari-pinned-tab.svg',
+      msTileImage: 'public/img/icons/msapplication-icon-144x144.png'
+    },
+    workboxOptions: {
+      // InjectManifest 模式下 swSrc 是必填的。
+      swSrc: 'src/service-worker.js',
+      // ...其它 Workbox 选项...
+    }
   }
 }

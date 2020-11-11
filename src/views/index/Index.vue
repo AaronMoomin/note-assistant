@@ -3,7 +3,7 @@
     class="index"
     direction="vertical"
   >
-    <el-header>
+    <el-header style="height: 95px;">
       <tool-bar />
     </el-header>
     <el-main>
@@ -37,4 +37,15 @@ export default {
 <style lang="stylus">
 .index
   height 100%
+  .el-header
+    padding-top 16px
+    background-image linear-gradient(to right, #61D1F7, #55B7F8, #50A2F8)
+  .el-main
+    z-index 1
+    padding-top 10px
+  .el-footer
+    z-index 1
+    position absolute
+    bottom 0
+    width 100%
 </style>

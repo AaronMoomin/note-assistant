@@ -71,8 +71,8 @@ export default {
         detail: {
           // 上传地址
           action: 'https://upload-z2.qiniup.com',
-          domain: 'http://qhyxeywtp.hn-bkt.clouddn.com/',
-          token: 'N8T7FT9RZ5syAB0AOTSIuiJxlXRfgEv_r5WEnaxf:r56MVhr16jtAfW9E4t4B2s0puK0=:eyJzY29wZSI6InN6aWl0LW5vdGVzLWFzc2lzdGFudCIsImRlYWRsaW5lIjoxNjAzMjk5NzI1fQ==',
+          domain: 'https://notes.cdn.librejo.cn/',
+          token: '',
           // 文件上传格式
           fileType: ['image/png', 'image/jpg', 'image/jpeg'],
           // 文件上传大小 单位M
@@ -86,15 +86,23 @@ export default {
     }
   },
   methods: {
+    // 获取上传token
+    async getToken () {
+      let resData = await this.axios.post('/v1/getToken')
+      this.uploadSettings.detail.token = resData.data.data
+    },
     // 改变抽屉状态
     changeDrawerState () {
       this.drawer = true
     },
     // 图片上传前操作
-    beforeImageUpload (file) {
+    async beforeImageUpload (file) {
+      // 待优化
       let settings = this.uploadSettings
       let isFileType = settings.detail.fileType.includes(file.type)
       let isFileSzie = file.size / 1024 / 1024 < settings.detail.fileSzie
+      let state = isFileType && isFileType
+
       if (!isFileType) {
         this.$message({
           message: settings.error.fileType,
@@ -107,7 +115,10 @@ export default {
           type: 'error'
         })
       }
-      return isFileType && isFileType
+      if (state) {
+        await this.getToken()
+      }
+      return state
     },
     // 图片上传中的钩子
     handleImageProgress () {

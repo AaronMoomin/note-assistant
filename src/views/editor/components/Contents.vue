@@ -67,7 +67,8 @@
 export default {
   name: 'Content',
   props: {
-    isRead: Boolean
+    isRead: Boolean,
+    noteData: Object
   },
   directives: {
     //滑动指令
@@ -108,7 +109,6 @@ export default {
         el.addEventListener('touchmove', function (e) {
           x = e.touches[0].pageX - startX
           y = e.touches[0].pageY - startY
-          console.log(`x:${Math.abs(x)} y:${Math.abs(y)}`)
           // 触摸点起始点与当前点的距离
           if (Math.abs(x) > 15 && Math.abs(y) < 50) return vnode.elm.style.transform = `translateX(${x}px)`
         })
@@ -140,27 +140,16 @@ export default {
   data () {
     return {
       audioKey: 0,
-      imgTest: 'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1591797306,3433247737&fm=26&gp=0.jpg',
-      contentForm: {
-        data:
-          [
-            {
-              type: 'text',
-              value: '',
-              key: '01'
-            },
-            {
-              type: 'image',
-              value: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-              key: '02'
-            },
-            {
-              type: 'audio',
-              value: 'test',
-              duration: 3,
-              key: '03'
-            }
-          ]
+      contentForm: this.noteData,
+      sendDataDetail: {
+        add: {
+          url: 'addNote',
+          method: 'post'
+        },
+        edtor: {
+          url: 'editorNote',
+          method: 'put'
+        }
       }
     }
   },
@@ -171,11 +160,12 @@ export default {
     },
     // 添加图像
     async addImg (data) {
-      await this.contentForm.data.push({
+      let resData = await this.contentForm.data.push({
         type: 'image',
         value: data,
         key: Date.now()
       })
+      this.imageOcr(undefined, undefined, data, resData)
     },
     // 添加音频
     async addAudio (data, duration) {
@@ -192,7 +182,7 @@ export default {
       return returnData
     },
     // 添加文本
-    async addText (type = 'text', key = null) {
+    async addText (type = 'text', key = null, position = null) {
       let returnPosition = 0
       let data = this.contentForm.data
       let template = {
@@ -207,7 +197,12 @@ export default {
         let index = this.contentForm.data.findIndex(e => e.key === key) + 1
         await data.splice(index, 0, template)
         returnPosition = index
-      } else {
+      }
+      else if (position) {
+        await data.splice(position, 0, template)
+        returnPosition = position
+      }
+      else if (!key && !position) {
         let position = await data.push(template)
         returnPosition = position - 1
       }
@@ -237,32 +232,35 @@ export default {
       })
     },
     // 图像识别
-    async imageOcr (event, key) {
-      let loading = this.$loading({
-        target: event.currentTarget,
-        lock: true,
-        text: '图像识别中',
-        background: 'rgba(0, 0, 0, 0.8)'
-      })
-      let returnData = await this.addText('ocrText', key)
-      let imgUrl = event.currentTarget.querySelector('.el-image>img').src
+    async imageOcr (event, key, imgUrl = '', position = null) {
+      let loading
+      if (!position) {
+        loading = this.$loading({
+          target: event.currentTarget,
+          lock: true,
+          text: '图像识别中',
+          background: 'rgba(0, 0, 0, 0.8)'
+        })
+      }
+      let returnData = await this.addText('ocrText', key, position)
+      if (imgUrl.length === 0) {
+        imgUrl = event.currentTarget.querySelector('.el-image>img').src
+      }
       let sendData = await this.imageToBase64(imgUrl)
       let config = {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       }
       let resData = await this.axios.post('/imageocr', sendData, config)
       let orcResult = resData.data.words_result.map(e => e.words).join('\n')
-
-      // if(orcResult.length = 0){
-
-      // }
-
       let ocrText = this.contentForm.data[returnData.position]
       if (ocrText.type === 'ocrText') {
         ocrText.value = orcResult
         ocrText.isOcring = false
       }
-      loading.close()
+      if (!position) {
+        loading.close()
+      }
+
     },
     // 语音识别
     async recordingOcr (value = '') {
@@ -274,6 +272,7 @@ export default {
       ocrText.isOcring = false
       this.audioKey = 0
     },
+    // 删除内容
     async removeItem (el, dx, key) {
       let elClientWidth = Math.abs(el.clientWidth)
       if (dx > elClientWidth * 0.3) {
@@ -301,8 +300,28 @@ export default {
       toggleActive()
       setTimeout(toggleActive, (duration * 1000))
     },
-    textPlaceholder () {
+    // 发送数据
+    async sendData () {
+      let mode
+      let data = JSON.parse(JSON.stringify(this.contentForm))
 
+      data.date = Date.now()
+      typeof this.$route.params.id === 'undefined' ? mode = 'add' : mode = 'edtor'
+      let resData = await this.axios[this.sendDataDetail[mode].method](`/v1/${this.sendDataDetail[mode].url}`, data)
+      if (resData.data.status) {
+        if (typeof this.$route.params.id === 'undefined') {
+          this.$bus.$emit("addNoteId", resData.data.data.id)
+        }
+        this.$message({
+          message: '保存成功',
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: '保存失败',
+          type: 'error'
+        })
+      }
     }
   },
   mounted () {
@@ -319,7 +338,9 @@ export default {
     this.$bus.$on("addText", () => {
       this.addText()
     })
-
+    this.$bus.$on("sendData", () => {
+      this.sendData()
+    })
   }
 }
 </script>
@@ -351,6 +372,11 @@ export default {
         i
           font-size 2rem
     .audio
+      -webkit-touch-callout none
+      -webkit-user-select none
+      -moz-user-select none
+      -ms-user-select none
+      user-select none
       height 45px
       line-height 45px
       width 150px

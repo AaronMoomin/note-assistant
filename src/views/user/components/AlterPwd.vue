@@ -9,9 +9,7 @@
       :rules="rules"
     >
       <div class="avatar mb-3">
-        <el-avatar
-          :size="130"
-        >
+        <el-avatar :size="130">
           <img :src="avatar" />
         </el-avatar>
       </div>
@@ -91,7 +89,7 @@ export default {
     }
     return {
       alterForm: {
-        phone: '13713552233',
+        phone: '',
         password: '',
         newPassword: '',
         checkPassword: ''
@@ -114,8 +112,48 @@ export default {
   },
   methods: {
     resetForm (formName) {
-      this.$refs[formName].resetFields();
-    }
+      this[formName].password = this[formName].newPassword = this[formName].checkPassword = ''
+    },
+    // 提交按钮
+    submitForm (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.sendData(formName)
+        } else {
+          return false
+        }
+      })
+    },
+    // 发送数据
+    async sendData (formName) {
+      let { password, newPassword } = JSON.parse(JSON.stringify(this[formName]))
+      let data = {
+        newPassword: newPassword,
+        oldPassword: password
+      }
+      delete data.checkPassword
+      let resData = await this.axios.put('/v1/changePwd', data)
+      if (resData.data.status) {
+        this.$message({
+          message: '修改成功,请重新登录',
+          type: 'success'
+        })
+        this.$router.replace({
+          path: '/'
+        })
+      } else {
+        this.$message({
+          message: resData.data.data,
+          type: 'error'
+        })
+      }
+    },
+  },
+  mounted () {
+    let payload = localStorage.getItem('token').split('.')[1]
+    let decodedPayload = window.atob(payload)
+    let phone = JSON.parse(decodedPayload).phone
+    this.alterForm.phone = phone
   }
 }
 </script>

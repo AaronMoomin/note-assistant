@@ -6,47 +6,26 @@
     <el-header>
       <tool-bar
         :title="noteData.title"
-        :isRead="modeState"
-        :isFavorite="noteData.favorite"
-        :nId="noteData.id"
-        @changMode="changMode"
-        @changeTitle="changeTitle"
       />
     </el-header>
     <el-main>
-      <contents
-        :isRead="modeState"
-        :noteData="noteData"
-      />
+      <contents :noteData="noteData" />
     </el-main>
-    <el-footer :class="mode">
-      <component
-        :is="mode"
-        @changMode="changMode"
-      />
-    </el-footer>
   </el-container>
 </template>
 
 <script>
 import ToolBar from './components/ToolBar'
 import Contents from './components/Contents'
-import Editor from './components/EditorBar'
-import Read from './components/ReadBar'
 
 export default {
-  name: 'NoteEditor',
+  name: 'Share',
   components: {
     ToolBar,
-    Contents,
-    Editor,
-    Read
+    Contents
   },
   data () {
     return {
-      // 查看 --- read
-      // 编辑 --- editor
-      mode: 'read',
       noteData: {
         id: null,
         title: '',
@@ -56,24 +35,18 @@ export default {
       }
     }
   },
-  computed: {
-    modeState () {
-      let isRead = this.mode === 'read'
-      return isRead
-    }
-  },
   methods: {
     init () {
       let noteId = this.$route.params.id
-      noteId ? this.getData(noteId) : this.noteData.title = '笔记标题'
+      this.getData(noteId)
     },
     async getData (noteId) {
       let data = {
         params: {
-          id: noteId
+          shareKey: noteId
         }
       }
-      let resData = await this.axios.get(`/v1/getNote`, data)
+      let resData = await this.axios.get(`/v1/getNoteByShare`, data)
       if (resData.data.status) {
         let data = resData.data.data
         this.noteData.id = data.id
@@ -87,12 +60,6 @@ export default {
           type: 'error'
         })
       }
-    },
-    changMode (data) {
-      this.mode = data
-    },
-    changeTitle (data) {
-      this.noteData.title = data
     }
   },
   mounted () {
@@ -114,13 +81,4 @@ export default {
       line-height 0px
     .el-form-item
       margin-bottom 10px
-  .el-footer.read
-    height 0
-    position fixed
-    bottom 0
-    right 0
-    padding-bottom 16px
-.el-popover.recording-popover
-  border-radius 30px
-  transition top 0.2s ease-in-out 0ms
 </style>

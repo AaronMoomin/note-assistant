@@ -7,12 +7,32 @@ import App from './App.vue'
 import router from './router'
 import md5 from 'js-md5'
 import CryptoJS from 'crypto-js'
+import './registerServiceWorker';
 
 axios.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
-  config.headers.common['Authorization'] = 'Bearer ' + token
+  if (token) {
+    config.headers.common['Authorization'] = 'Bearer ' + token
+  }
   return config
 })
+
+
+axios.interceptors.response.use(
+  response => {
+    return response
+  },
+  err => {
+    switch (err.response.status) {
+      case 401: {
+        router.replace({
+          path: '/'
+        })
+        break
+      }
+    }
+  }
+)
 
 Vue.prototype.$md5 = md5
 Vue.prototype.$cryptoJS = CryptoJS
