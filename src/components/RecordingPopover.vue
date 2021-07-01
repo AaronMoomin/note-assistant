@@ -342,4 +342,9 @@ export default {
   box-sizing border-box
   display inline-block
   vertical-align bottom
+  -webkit-touch-callout none
+  -webkit-user-select none
+  -moz-user-select none
+  -ms-user-select none
+  user-select none
 </style>

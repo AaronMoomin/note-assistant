@@ -17,6 +17,8 @@
       <contents
         :isRead="modeState"
         :noteData="noteData"
+        v-loading="loading"
+        element-loading-text="拼命加载中"
       />
     </el-main>
     <el-footer :class="mode">
@@ -53,7 +55,8 @@ export default {
         data: [],
         favorite: false,
         date: null
-      }
+      },
+      loading: false
     }
   },
   computed: {
@@ -68,6 +71,7 @@ export default {
       noteId ? this.getData(noteId) : this.noteData.title = '笔记标题'
     },
     async getData (noteId) {
+      this.loading = true
       let data = {
         params: {
           id: noteId
@@ -75,6 +79,7 @@ export default {
       }
       let resData = await this.axios.get(`/v1/getNote`, data)
       if (resData.data.status) {
+        this.loading = false
         let data = resData.data.data
         this.noteData.id = data.id
         this.noteData.title = data.title
@@ -110,10 +115,13 @@ export default {
     margin-bottom 10px
     padding-top 0
   .el-main
+    height 100%
     .el-form-item__content
       line-height 0px
     .el-form-item
       margin-bottom 10px
+  .el-footer
+    z-index 2001
   .el-footer.read
     height 0
     position fixed

@@ -138,6 +138,11 @@ svg:focus, .el-message-box__wrapper:focus
 .el-message
   min-width 97%
   top 10px !important
+// 对话框
+.el-dialog
+  min-width 97%
+.el-dialog__body
+  text-align center
 // 抽屉
 .el-drawer, .el-drawer__container
   outline none
@@ -195,11 +200,15 @@ svg:focus, .el-message-box__wrapper:focus
   font-size 1.8rem
 // card
 .el-card__body
-  padding 10px
-// Notification
-.el-notification__title
+  padding 15px 20px
+// 禁止选中
+.el-notification__title, .el-message, .el-dialog__header
   -webkit-touch-callout none
   -webkit-user-select none
   -moz-user-select none
   -ms-user-select none
   user-select none
+.el-loading-spinner
+  margin-top 0 !important
+.v-modal
+  z-index 2000 !important

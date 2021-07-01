@@ -12,6 +12,7 @@
     "clipboard": "^2.0.6",
     "core-js": "^3.6.5",
     "element-ui": "^2.13.2",
+    "js-file-download": "^0.4.12",
     "js-md5": "^0.7.3",
     "jsencrypt": "^3.0.0-rc.1",
     "recorder-core": "^1.1.20062600",

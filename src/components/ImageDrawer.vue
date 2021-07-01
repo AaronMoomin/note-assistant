@@ -47,7 +47,8 @@
           :action="uploadSettings.detail.action"
           :http-request="uploadImages"
           :before-upload="beforeImageUpload"
-          :multiple="true"
+          :multiple="this.isMultiple"
+          :limit="this.isMultiple?undefined:1"
           :show-file-list="false"
         >
           <el-button
@@ -64,8 +65,12 @@
 
 export default {
   name: "ImageDrawer",
+  props: {
+    isMultiple: Boolean
+  },
   data () {
     return {
+      routerName: '',
       drawer: false,
       uploadSettings: {
         detail: {
@@ -126,9 +131,13 @@ export default {
     },
     // 图片上传成功钩子
     handleImageSuccess (res) {
-      let imgWidth = document.querySelector('.content>.el-form').clientWidth
+      let imgWidth = this.$route.name === 'Index' ? document.querySelector('.content').clientWidth : document.querySelector('.content>.el-form').clientWidth
       let imgUrl = this.uploadSettings.detail.domain + res.key + `?imageMogr2/auto-orient/thumbnail/${imgWidth}x/format/jpg/blur/1x0/quality/75`
-      this.$bus.$emit('addImg', imgUrl)
+      if (this.$route.name === 'Index') {
+        this.$bus.$emit('ocrImg', imgUrl)
+      } else {
+        this.$bus.$emit('addImg', imgUrl)
+      }
       this.$message({
         message: '图片上传成功',
         type: 'success'

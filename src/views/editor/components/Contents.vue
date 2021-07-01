@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import fileDownload from 'js-file-download'
 
 export default {
   name: 'Content',
@@ -304,8 +305,8 @@ export default {
     async sendData () {
       let mode
       let data = JSON.parse(JSON.stringify(this.contentForm))
-
       data.date = Date.now()
+
       typeof this.$route.params.id === 'undefined' ? mode = 'add' : mode = 'edtor'
       let resData = await this.axios[this.sendDataDetail[mode].method](`/v1/${this.sendDataDetail[mode].url}`, data)
       if (resData.data.status) {
@@ -322,6 +323,31 @@ export default {
           type: 'error'
         })
       }
+    },
+    // 获取转换文件
+    async getFile (format) {
+      let detail = {
+        pdf: {
+          url: 'generatedPdf'
+        },
+        doc: {
+          url: 'generatedWord'
+        }
+      }
+      let data = JSON.parse(JSON.stringify(this.contentForm))
+      data.date = Date.now()
+      console.log(data)
+      data.data.forEach(function (element, index) {
+        if (element.type === 'audio') {
+          data.data.splice(index, 1)
+        }
+      })
+      console.log(data)
+      let resData = await this.axios.post(`/v1/${detail[format].url}`, data)
+      let blobData = await this.axios.get(`https://notes.cdn.librejo.cn/${resData.data.data.url}`, {
+        responseType: 'blob',
+      })
+      fileDownload(blobData.data, `${this.noteData.title}.${format}`)
     }
   },
   mounted () {
@@ -340,6 +366,9 @@ export default {
     })
     this.$bus.$on("sendData", () => {
       this.sendData()
+    })
+    this.$bus.$on("getFile", (data) => {
+      this.getFile(data)
     })
   }
 }
@@ -413,11 +442,9 @@ export default {
           left 15px
         @keyframes fadeInOut
           0%
-            opacity 0
-            /* 初始状态 透明度为0 */
+            opacity 0 /* 初始状态 透明度为0 */
           100%
-            opacity 1
-            /* 结尾状态 透明度为1 */
+            opacity 1 /* 结尾状态 透明度为1 */
       .audio-duration
         font-size 12px
 .active>.icon-broadcast>.first

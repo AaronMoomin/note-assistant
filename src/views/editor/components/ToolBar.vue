@@ -147,11 +147,15 @@ export default {
         })
         clipboard.on('error', function () {
           clipboard.destroy()
-          _this.$message({
-            message: '链接复制失败!',
-            type: 'warning'
+          _this.$notify({
+            title: '分享成功,请长按复制分享链接',
+            message: shareUrl,
+            type: 'success',
+            duration: 0
           })
         })
+        fakeElement.style.cursor = 'pointer'
+        fakeElement.setAttribute('onclick', '')
         fakeElement.click()
       }
     },
@@ -200,6 +204,14 @@ export default {
           type: 'error'
         })
       }
+    },
+    // Doc
+    async doc () {
+      this.$bus.$emit('getFile', 'doc')
+    },
+    // Pdf
+    async pdf () {
+      this.$bus.$emit('getFile', 'pdf')
     }
   },
   mounted () {

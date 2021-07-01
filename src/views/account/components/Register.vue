@@ -16,20 +16,6 @@
           <img :src="avatar" />
         </el-avatar>
       </div>
-      <el-form-item prop="username">
-        <el-input
-          v-model="registerForm.username"
-          autocomplete="off"
-          placeholder="请输入用户名"
-          clearable
-        >
-          <icon-font
-            iconCode="icon-xingmingyonghumingnicheng"
-            slot="prefix"
-            class="username"
-          />
-        </el-input>
-      </el-form-item>
       <el-form-item prop="phone">
         <el-input
           v-model="registerForm.phone"
@@ -119,10 +105,6 @@ export default {
         password: '',
       },
       rules: {
-        username: [
-          { required: true, message: '请输入您的用户名', trigger: 'change' },
-          { pattern: /^[a-zA-Z0-9_-]{4,16}$/, message: '请输入正确的用户名', trigger: 'change' }
-        ],
         phone: [
           { required: true, message: '请输入您的手机号', trigger: 'change' },
           { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'change' }
@@ -149,6 +131,7 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          this.registerForm.username = this.registerForm.phone
           this.sendData(formName)
         } else {
           return false

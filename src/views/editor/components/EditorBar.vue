@@ -8,7 +8,10 @@
       class="image"
       @click.native="image"
     />
-    <image-drawer ref="imageDrawer" />
+    <image-drawer
+      ref="imageDrawer"
+      :isMultiple="true"
+    />
     <recording-popover ref="rcordingPopover">
       <icon-font
         slot="down"
@@ -26,8 +29,8 @@
 </template>
 
 <script>
-import ImageDrawer from './ImageDrawer'
-import RecordingPopover from './RecordingPopover'
+import ImageDrawer from '@/components/ImageDrawer'
+import RecordingPopover from '@/components/RecordingPopover'
 
 export default {
   name: 'Editor',
@@ -111,17 +114,7 @@ export default {
         navigator.vibrate(100)
       }
       // 获取录音权限
-      // this.$refs.rcordingPopover.recordingInit()
       this.$refs.rcordingPopover.changePopoverState(true)
-      // 检查录音权限
-      // if (!this.recPermission) {
-      //   this.$message({
-      //     message: "请授权录音权限",
-      //     type: 'warning'
-      //   })
-      //   return
-      // }
-
     },
     // 文本
     text () {
@@ -144,6 +137,8 @@ export default {
   background-color $whiteColor
   padding 1rem 0
   border-radius 30px
+  .recording
+    padding 0 0.5rem
   .image, .text, .recording
     font-size 2rem
     color $darkBlueColor

@@ -1,3 +1,4 @@
+// main.js
 import Vue from 'vue'
 import axios from 'axios'
 import Element, { Message } from 'element-ui'

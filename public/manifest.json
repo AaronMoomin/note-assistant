@@ -1,7 +1,17 @@
 {
-  "short_name": "Notes Assistant",
+  "short_name": "智能云笔记",
   "name": "智能云笔记",
   "icons": [
+    {
+      "src": "/img/icons/icon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icons/icon-32x132.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
     {
       "src": "/img/icons/icon-192x192.png",
       "sizes": "192x192",
@@ -13,7 +23,7 @@
       "type": "image/png"
     }
   ],
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "natural",
   "background_color": "#52AEF9",
